@@ -106,3 +106,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FoodObject
   AmountGranted: 15
+  EatSound: {fileID: 8300000, guid: b6b608537288246c9a464915db27bf52, type: 3}

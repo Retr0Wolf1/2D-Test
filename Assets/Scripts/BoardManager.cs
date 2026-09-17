@@ -24,11 +24,20 @@ public class BoardManager : MonoBehaviour
     public WallObject[] WallPrefabs;
     public ExitCellObject ExitCellPrefab;
 
+    public Enemy EnemyPrefab;
+
     public int MinFood = 3;
     public int MaxFood = 8;
 
+    public int MinEnemies = 2;
+    public int MaxEnemies = 4;
+
+    private ExitCellObject m_ExitCell;
+
     public void Init()
     {
+        Enemy.ResetAliveCount();
+
         m_Tilemap = GetComponentInChildren<Tilemap>();
         m_Grid = GetComponentInChildren<Grid>();
         m_EmptyCellsList = new List<Vector2Int>();
@@ -61,11 +70,44 @@ public class BoardManager : MonoBehaviour
         m_EmptyCellsList.Remove(new Vector2Int(1, 1));
 
         Vector2Int endCoord = new Vector2Int(Width - 2, Height - 2);
-        AddObject(Instantiate(ExitCellPrefab), endCoord);
+        m_ExitCell = Instantiate(ExitCellPrefab);
+        AddObject(m_ExitCell, endCoord);
         m_EmptyCellsList.Remove(endCoord);
 
         GenerateWall();
         GenerateFood();
+        GenerateEnemies();
+
+        SetupCamera();
+        SetupFog();
+    }
+
+    void SetupCamera()
+    {
+        if (Camera.main == null)
+            return;
+
+        CameraFollow follow = Camera.main.GetComponent<CameraFollow>();
+        if (follow == null)
+            return;
+
+        follow.Setup(this);
+
+        if (GameManager.Instance != null && GameManager.Instance.PlayerController != null)
+            follow.SetTarget(GameManager.Instance.PlayerController.transform);
+    }
+
+    void SetupFog()
+    {
+        FogOfWar fog = FindAnyObjectByType<FogOfWar>();
+        if (fog != null)
+            fog.Setup(this);
+    }
+
+    public void OnAllEnemiesDead()
+    {
+        if (m_ExitCell != null)
+            m_ExitCell.Open();
     }
 
     public void Clean()
@@ -91,9 +133,17 @@ public class BoardManager : MonoBehaviour
 
     void GenerateWall()
     {
-        int wallCount = Random.Range(6, 10);
+        int totalCells = Width * Height;
+        int minWalls = Mathf.RoundToInt(totalCells * 0.05f);
+        int maxWalls = Mathf.RoundToInt(totalCells * 0.10f);
+
+        int wallCount = Random.Range(minWalls, maxWalls + 1);
+
         for (int i = 0; i < wallCount; ++i)
         {
+            if (m_EmptyCellsList.Count == 0)
+                break;
+
             int randomIndex = Random.Range(0, m_EmptyCellsList.Count);
             Vector2Int coord = m_EmptyCellsList[randomIndex];
 
@@ -118,6 +168,29 @@ public class BoardManager : MonoBehaviour
             int prefabIndex = Random.Range(0, FoodPrefabs.Length);
             FoodObject newFood = Instantiate(FoodPrefabs[prefabIndex]);
             AddObject(newFood, coord);
+        }
+    }
+
+    void GenerateEnemies()
+    {
+        if (EnemyPrefab == null)
+        {
+            Debug.LogWarning("EnemyPrefab не назначен в BoardManager!");
+            return;
+        }
+
+        int enemyCount = Random.Range(MinEnemies, MaxEnemies + 1);
+        enemyCount = Mathf.Min(enemyCount, m_EmptyCellsList.Count);
+
+        for (int i = 0; i < enemyCount; ++i)
+        {
+            int randomIndex = Random.Range(0, m_EmptyCellsList.Count);
+            Vector2Int coord = m_EmptyCellsList[randomIndex];
+
+            m_EmptyCellsList.RemoveAt(randomIndex);
+
+            Enemy newEnemy = Instantiate(EnemyPrefab);
+            AddObject(newEnemy, coord);
         }
     }
 

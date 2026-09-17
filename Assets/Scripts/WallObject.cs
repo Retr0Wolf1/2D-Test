@@ -6,6 +6,8 @@ public class WallObject : CellObject
     public Tile ObstacleTile;
     public int MaxHealth = 3;
 
+    public WallObject NextWallPrefab;
+
     private int m_HealthPoint;
     private Tile m_OriginalTile;
 
@@ -16,7 +18,6 @@ public class WallObject : CellObject
         m_HealthPoint = MaxHealth;
         m_OriginalTile = GameManager.Instance.BoardManager.GetCellTile(cell);
         GameManager.Instance.BoardManager.SetCellTile(cell, ObstacleTile);
-        // НЕ ставим Passable = false — стена блокирует через PlayerWantsToEnter
     }
 
     public override bool PlayerWantsToEnter()
@@ -25,11 +26,46 @@ public class WallObject : CellObject
 
         if (m_HealthPoint > 0)
         {
+            ReplaceWithNext();
             return false;
         }
 
-        GameManager.Instance.BoardManager.SetCellTile(m_Cell, m_OriginalTile);
-        Destroy(gameObject);
+        BreakWall();
         return true;
+    }
+
+    void ReplaceWithNext()
+    {
+        if (NextWallPrefab == null)
+            return;
+
+        var board = GameManager.Instance.BoardManager;
+
+        WallObject newWall = Instantiate(NextWallPrefab);
+
+        board.SetCellTile(m_Cell, m_OriginalTile);
+
+        var cellData = board.GetCellData(m_Cell);
+        cellData.ContainedObject = newWall;
+
+        newWall.transform.position = transform.position;
+        newWall.Init(m_Cell);
+
+        Destroy(gameObject);
+    }
+
+    void BreakWall()
+    {
+        var board = GameManager.Instance.BoardManager;
+        board.SetCellTile(m_Cell, m_OriginalTile);
+
+        var cellData = board.GetCellData(m_Cell);
+        if (cellData != null)
+        {
+            cellData.Passable = true;
+            cellData.ContainedObject = null;
+        }
+
+        Destroy(gameObject);
     }
 }

@@ -7,6 +7,7 @@ public class GameManager : MonoBehaviour
 
     public BoardManager BoardManager;
     public PlayerController PlayerController;
+    public PauseMenu PauseMenu;
     public UIDocument UIDoc;
 
     public TurnManager TurnManager { get; private set; }
@@ -36,7 +37,10 @@ public class GameManager : MonoBehaviour
         m_GameOverPanel = UIDoc.rootVisualElement.Q<VisualElement>("GameOverPanel");
         m_GameOverMessage = m_GameOverPanel.Q<Label>("GameOverMessage");
 
-        StartNewGame();
+        m_GameOverPanel.style.visibility = Visibility.Hidden;
+        m_FoodLabel.style.visibility = Visibility.Hidden;
+
+        PlayerController.gameObject.SetActive(false);
     }
 
     void OnTurnHappen()
@@ -64,11 +68,19 @@ public class GameManager : MonoBehaviour
         PlayerController.Spawn(BoardManager, new Vector2Int(1, 1));
 
         m_CurrentLevel++;
+
+        if (Camera.main != null)
+        {
+            CameraFollow follow = Camera.main.GetComponent<CameraFollow>();
+            if (follow != null)
+                follow.SetTarget(PlayerController.transform);
+        }
     }
 
     public void StartNewGame()
     {
         m_GameOverPanel.style.visibility = Visibility.Hidden;
+        m_FoodLabel.style.visibility = Visibility.Visible;
 
         m_CurrentLevel = 1;
         m_FoodAmount = 20;
@@ -77,7 +89,28 @@ public class GameManager : MonoBehaviour
         BoardManager.Clean();
         BoardManager.Init();
 
+        PlayerController.gameObject.SetActive(true);
         PlayerController.Init();
         PlayerController.Spawn(BoardManager, new Vector2Int(1, 1));
+
+        if (Camera.main != null)
+        {
+            CameraFollow follow = Camera.main.GetComponent<CameraFollow>();
+            if (follow != null)
+                follow.SetTarget(PlayerController.transform);
+        }
+
+        if (PauseMenu != null)
+            PauseMenu.ShowPauseButton();
+    }
+
+    public void ReturnToMainMenu()
+    {
+        BoardManager.Clean();
+
+        m_GameOverPanel.style.visibility = Visibility.Hidden;
+        m_FoodLabel.style.visibility = Visibility.Hidden;
+
+        PlayerController.gameObject.SetActive(false);
     }
 }

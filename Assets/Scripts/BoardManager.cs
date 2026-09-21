@@ -23,19 +23,25 @@ public class BoardManager : MonoBehaviour
     public FoodObject[] FoodPrefabs;
     public WallObject[] WallPrefabs;
     public ExitCellObject ExitCellPrefab;
-
     public Enemy EnemyPrefab;
 
     public int MinFood = 3;
     public int MaxFood = 8;
-
     public int MinEnemies = 2;
     public int MaxEnemies = 4;
+
+    public int Seed = 0;
+    private System.Random m_Rng;
 
     private ExitCellObject m_ExitCell;
 
     public void Init()
     {
+        if (Seed == 0)
+            Seed = UnityEngine.Random.Range(1, 999999);
+
+        m_Rng = new System.Random(Seed);
+
         Enemy.ResetAliveCount();
 
         m_Tilemap = GetComponentInChildren<Tilemap>();
@@ -53,12 +59,12 @@ public class BoardManager : MonoBehaviour
 
                 if (x == 0 || y == 0 || x == Width - 1 || y == Height - 1)
                 {
-                    tile = WallTiles[Random.Range(0, WallTiles.Length)];
+                    tile = WallTiles[m_Rng.Next(0, WallTiles.Length)];
                     m_BoardData[x, y].Passable = false;
                 }
                 else
                 {
-                    tile = GroundTiles[Random.Range(0, GroundTiles.Length)];
+                    tile = GroundTiles[m_Rng.Next(0, GroundTiles.Length)];
                     m_BoardData[x, y].Passable = true;
                     m_EmptyCellsList.Add(new Vector2Int(x, y));
                 }
@@ -84,12 +90,10 @@ public class BoardManager : MonoBehaviour
 
     void SetupCamera()
     {
-        if (Camera.main == null)
-            return;
+        if (Camera.main == null) return;
 
         CameraFollow follow = Camera.main.GetComponent<CameraFollow>();
-        if (follow == null)
-            return;
+        if (follow == null) return;
 
         follow.Setup(this);
 
@@ -108,12 +112,13 @@ public class BoardManager : MonoBehaviour
     {
         if (m_ExitCell != null)
             m_ExitCell.Open();
-    }
+
+        UIManager.Instance.ShowGoToExit();
+    }   
 
     public void Clean()
     {
-        if (m_BoardData == null)
-            return;
+        if (m_BoardData == null) return;
 
         for (int y = 0; y < Height; ++y)
         {
@@ -122,9 +127,7 @@ public class BoardManager : MonoBehaviour
                 var cellData = m_BoardData[x, y];
 
                 if (cellData.ContainedObject != null)
-                {
                     Destroy(cellData.ContainedObject.gameObject);
-                }
 
                 SetCellTile(new Vector2Int(x, y), null);
             }
@@ -137,19 +140,18 @@ public class BoardManager : MonoBehaviour
         int minWalls = Mathf.RoundToInt(totalCells * 0.05f);
         int maxWalls = Mathf.RoundToInt(totalCells * 0.10f);
 
-        int wallCount = Random.Range(minWalls, maxWalls + 1);
+        int wallCount = m_Rng.Next(minWalls, maxWalls + 1);
 
         for (int i = 0; i < wallCount; ++i)
         {
-            if (m_EmptyCellsList.Count == 0)
-                break;
+            if (m_EmptyCellsList.Count == 0) break;
 
-            int randomIndex = Random.Range(0, m_EmptyCellsList.Count);
+            int randomIndex = m_Rng.Next(0, m_EmptyCellsList.Count);
             Vector2Int coord = m_EmptyCellsList[randomIndex];
 
             m_EmptyCellsList.RemoveAt(randomIndex);
 
-            int wallIndex = Random.Range(0, WallPrefabs.Length);
+            int wallIndex = m_Rng.Next(0, WallPrefabs.Length);
             WallObject newWall = Instantiate(WallPrefabs[wallIndex]);
             AddObject(newWall, coord);
         }
@@ -157,15 +159,15 @@ public class BoardManager : MonoBehaviour
 
     void GenerateFood()
     {
-        int foodCount = Random.Range(MinFood, MaxFood + 1);
+        int foodCount = m_Rng.Next(MinFood, MaxFood + 1);
 
         for (int i = 0; i < foodCount; ++i)
         {
-            int randomIndex = Random.Range(0, m_EmptyCellsList.Count);
+            int randomIndex = m_Rng.Next(0, m_EmptyCellsList.Count);
             Vector2Int coord = m_EmptyCellsList[randomIndex];
 
             m_EmptyCellsList.RemoveAt(randomIndex);
-            int prefabIndex = Random.Range(0, FoodPrefabs.Length);
+            int prefabIndex = m_Rng.Next(0, FoodPrefabs.Length);
             FoodObject newFood = Instantiate(FoodPrefabs[prefabIndex]);
             AddObject(newFood, coord);
         }
@@ -175,16 +177,16 @@ public class BoardManager : MonoBehaviour
     {
         if (EnemyPrefab == null)
         {
-            Debug.LogWarning("EnemyPrefab не назначен в BoardManager!");
+            Debug.LogWarning("EnemyPrefab не назначен!");
             return;
         }
 
-        int enemyCount = Random.Range(MinEnemies, MaxEnemies + 1);
+        int enemyCount = m_Rng.Next(MinEnemies, MaxEnemies + 1);
         enemyCount = Mathf.Min(enemyCount, m_EmptyCellsList.Count);
 
         for (int i = 0; i < enemyCount; ++i)
         {
-            int randomIndex = Random.Range(0, m_EmptyCellsList.Count);
+            int randomIndex = m_Rng.Next(0, m_EmptyCellsList.Count);
             Vector2Int coord = m_EmptyCellsList[randomIndex];
 
             m_EmptyCellsList.RemoveAt(randomIndex);
@@ -209,11 +211,9 @@ public class BoardManager : MonoBehaviour
 
     public CellData GetCellData(Vector2Int cellIndex)
     {
-        if (cellIndex.x < 0 || cellIndex.x >= Width
-            || cellIndex.y < 0 || cellIndex.y >= Height)
-        {
+        if (cellIndex.x < 0 || cellIndex.x >= Width ||
+            cellIndex.y < 0 || cellIndex.y >= Height)
             return null;
-        }
 
         return m_BoardData[cellIndex.x, cellIndex.y];
     }

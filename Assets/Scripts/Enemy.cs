@@ -28,14 +28,12 @@ public class Enemy : CellObject
     private Animator m_Animator;
     private Vector3 m_OriginalScale;
     private EnemyHealthBar m_HealthBar;
-    private AudioSource m_AudioSource;
 
     private static readonly int AttackHash = Animator.StringToHash("Attack");
 
     private void Awake()
     {
         m_Animator = GetComponent<Animator>();
-        m_AudioSource = GetComponent<AudioSource>();
         m_OriginalScale = transform.localScale;
     }
 
@@ -111,11 +109,11 @@ public class Enemy : CellObject
 
     void PlayFootstep()
     {
-        if (m_AudioSource == null || FootstepSounds == null || FootstepSounds.Length == 0)
+        if (AudioManager.Instance == null || FootstepSounds == null || FootstepSounds.Length == 0)
             return;
 
         int index = Random.Range(0, FootstepSounds.Length);
-        m_AudioSource.PlayOneShot(FootstepSounds[index], 1.5f);
+        AudioManager.Instance.SFXSource.PlayOneShot(FootstepSounds[index], 1.5f);
     }
 
     void FaceDirection(bool faceRight)
@@ -239,8 +237,8 @@ public class Enemy : CellObject
         if (m_Animator != null)
             m_Animator.SetTrigger(AttackHash);
 
-        if (m_AudioSource != null && AttackSound != null)
-            m_AudioSource.PlayOneShot(AttackSound, 2f);
+        if (AudioManager.Instance != null && AttackSound != null)
+            AudioManager.Instance.SFXSource.PlayOneShot(AttackSound, 2f);
 
         GameManager.Instance.ChangeFood(-AttackDamage);
     }

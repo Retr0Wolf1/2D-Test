@@ -9,7 +9,6 @@ public class PlayerController : MonoBehaviour
 
     private Animator m_Animator;
     private SpriteRenderer m_SpriteRenderer;
-    private AudioSource m_AudioSource;
 
     private bool m_IsMoving;
     private Vector3 m_MoveTarget;
@@ -27,7 +26,6 @@ public class PlayerController : MonoBehaviour
     {
         m_Animator = GetComponent<Animator>();
         m_SpriteRenderer = GetComponent<SpriteRenderer>();
-        m_AudioSource = GetComponent<AudioSource>();
     }
 
     public void Init()
@@ -77,21 +75,24 @@ public class PlayerController : MonoBehaviour
         if (m_Animator != null)
             m_Animator.SetTrigger(AttackHash);
 
-        if (m_AudioSource != null && AttackSound != null)
-            m_AudioSource.PlayOneShot(AttackSound, 2f);
+        if (AudioManager.Instance != null && AttackSound != null)
+            AudioManager.Instance.SFXSource.PlayOneShot(AttackSound, 2f);
     }
 
     void PlayFootstep()
     {
-        if (m_AudioSource == null || FootstepSounds == null || FootstepSounds.Length == 0)
+        if (AudioManager.Instance == null || FootstepSounds == null || FootstepSounds.Length == 0)
             return;
 
         int index = Random.Range(0, FootstepSounds.Length);
-        m_AudioSource.PlayOneShot(FootstepSounds[index], 2f);
+        AudioManager.Instance.SFXSource.PlayOneShot(FootstepSounds[index], 2f);
     }
 
     private void Update()
     {
+        if (m_Board == null)
+            return;
+
         if (m_IsGameOver)
         {
             if (Keyboard.current != null &&
@@ -117,11 +118,15 @@ public class PlayerController : MonoBehaviour
                 if (m_Animator != null)
                     m_Animator.SetBool(MovingHash, false);
 
+                // Сначала — объект на клетке (еда, выход)
                 BoardManager.CellData cellData =
                     m_Board.GetCellData(m_CellPosition);
 
                 if (cellData != null && cellData.ContainedObject != null)
                     cellData.ContainedObject.PlayerEntered();
+
+                // Потом — ход (голод, враги)
+                GameManager.Instance.TurnManager.Tick();
             }
             return;
         }
@@ -166,7 +171,6 @@ public class PlayerController : MonoBehaviour
                 {
                     if (cellData.ContainedObject.PlayerWantsToEnter())
                     {
-                        GameManager.Instance.TurnManager.Tick();
                         MoveTo(newCellTarget);
                     }
                     else if (cellData.ContainedObject.IsAttackable)
@@ -177,7 +181,6 @@ public class PlayerController : MonoBehaviour
                 }
                 else if (cellData.Passable)
                 {
-                    GameManager.Instance.TurnManager.Tick();
                     MoveTo(newCellTarget);
                 }
             }

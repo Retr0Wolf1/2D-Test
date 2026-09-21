@@ -7,8 +7,8 @@ public class FoodObject : CellObject
 
     public override void PlayerEntered()
     {
-        if (EatSound != null)
-            AudioSource.PlayClipAtPoint(EatSound, transform.position);
+        if (AudioManager.Instance != null && EatSound != null)
+            AudioManager.Instance.SFXSource.PlayOneShot(EatSound, 2f);
 
         GameManager.Instance.ChangeFood(AmountGranted);
         Destroy(gameObject);

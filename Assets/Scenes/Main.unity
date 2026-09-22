@@ -905,7 +905,6 @@ GameObject:
   - component: {fileID: 1386574152}
   - component: {fileID: 1386574151}
   - component: {fileID: 1386574150}
-  - component: {fileID: 1386574149}
   m_Layer: 5
   m_Name: UIRoot
   m_TagString: Untagged
@@ -913,55 +912,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1386574149
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1386574148}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 71ef6d85183b10b4ca8150b6013171f7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UIManager
-  _mainMenuPanel: {fileID: 0}
-  _hudPanel: {fileID: 0}
-  _pausePanel: {fileID: 0}
-  _gameOverPanel: {fileID: 0}
-  _settingsPanel: {fileID: 0}
-  _startButton: {fileID: 0}
-  _continueButton: {fileID: 0}
-  _quitButton: {fileID: 0}
-  _settingsButton: {fileID: 0}
-  _bestScoreText: {fileID: 0}
-  _titleText: {fileID: 0}
-  _pauseButton: {fileID: 0}
-  _foodLabel: {fileID: 0}
-  _goToExitText: {fileID: 0}
-  _hintText: {fileID: 0}
-  _normalFoodColor: {r: 1, g: 1, b: 1, a: 1}
-  _lowFoodColor: {r: 1, g: 0, b: 0, a: 1}
-  _lowFoodThreshold: 10
-  _blinkSpeed: 2
-  _goToExitColorA: {r: 0.94716984, g: 0.0053612613, b: 0.0053612613, a: 1}
-  _goToExitColorB: {r: 0.51991636, g: 0.2166536, b: 0.554717, a: 1}
-  _goToExitBlinkSpeed: 2
-  _hintCharDelay: 0.03
-  _hintDuration: 5
-  _resumeButton: {fileID: 0}
-  _pauseMainMenuButton: {fileID: 0}
-  _pauseSettingsButton: {fileID: 0}
-  _pauseTitle: {fileID: 0}
-  _musicToggle: {fileID: 0}
-  _sfxToggle: {fileID: 0}
-  _settingsBackButton: {fileID: 0}
-  _languageDropdown: {fileID: 0}
-  _settingsTitle: {fileID: 0}
-  _restartButton: {fileID: 0}
-  _gameOverMainMenuButton: {fileID: 0}
-  _gameOverTitle: {fileID: 0}
-  _gameOverBestText: {fileID: 0}
 --- !u!114 &1386574150
 MonoBehaviour:
   m_ObjectHideFlags: 0

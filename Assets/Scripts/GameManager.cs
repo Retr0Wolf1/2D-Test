@@ -1,5 +1,5 @@
 // Copyright (c) 2003-2026 Autism Group. All Rights Reserved.
-    
+
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -74,6 +74,14 @@ public class GameManager : MonoBehaviour
         _playerController.Spawn(_boardManager, new Vector2Int(1, 1));
 
         ViewManager.Instance.OpenPage<HudPageView>();
+
+        HudPageView hud = ViewManager.Instance.CurrentPage as HudPageView;
+
+        if (hud != null)
+        {
+            hud.UpdateFood(_foodAmount);
+        }
+
         SaveGame();
     }
 
@@ -97,6 +105,7 @@ public class GameManager : MonoBehaviour
 
         if (hud != null)
         {
+            hud.UpdateFood(_foodAmount);
             hud.ShowHint();
         }
 
@@ -123,6 +132,13 @@ public class GameManager : MonoBehaviour
         _playerController.Spawn(_boardManager, SaveManager.LoadPlayerPos());
 
         ViewManager.Instance.OpenPage<HudPageView>();
+
+        HudPageView hud = ViewManager.Instance.CurrentPage as HudPageView;
+
+        if (hud != null)
+        {
+            hud.UpdateFood(_foodAmount);
+        }
     }
 
     public void ReturnToMainMenu()

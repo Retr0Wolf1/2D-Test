@@ -1,16 +1,19 @@
+// Copyright (c) 2003-2026 Autism Group. All Rights Reserved.
+
 using UnityEngine;
 
 public static class SaveManager
 {
-    const string SeedKey = "Save_Seed";
-    const string FoodKey = "Save_Food";
-    const string LevelKey = "Save_Level";
-    const string PlayerXKey = "Save_PlayerX";
-    const string PlayerYKey = "Save_PlayerY";
-    const string HasSaveKey = "Save_HasSave";
-    const string BestLevelKey = "Save_BestLevel";
+    private const string SeedKey = "Save_Seed";
+    private const string FoodKey = "Save_Food";
+    private const string LevelKey = "Save_Level";
+    private const string PlayerXKey = "Save_PlayerX";
+    private const string PlayerYKey = "Save_PlayerY";
+    private const string HasSaveKey = "Save_HasSave";
+    private const string BestLevelKey = "Save_BestLevel";
 
     public static bool HasSave => PlayerPrefs.GetInt(HasSaveKey, 0) == 1;
+    public static int BestLevel => PlayerPrefs.GetInt(BestLevelKey, 0);
 
     public static void SaveGame(int seed, int food, int level, Vector2Int playerPos)
     {
@@ -23,9 +26,20 @@ public static class SaveManager
         PlayerPrefs.Save();
     }
 
-    public static int LoadSeed() => PlayerPrefs.GetInt(SeedKey, 0);
-    public static int LoadFood() => PlayerPrefs.GetInt(FoodKey, 20);
-    public static int LoadLevel() => PlayerPrefs.GetInt(LevelKey, 1);
+    public static int LoadSeed()
+    {
+        return PlayerPrefs.GetInt(SeedKey, 0);
+    }
+
+    public static int LoadFood()
+    {
+        return PlayerPrefs.GetInt(FoodKey, 20);
+    }
+
+    public static int LoadLevel()
+    {
+        return PlayerPrefs.GetInt(LevelKey, 1);
+    }
 
     public static Vector2Int LoadPlayerPos()
     {
@@ -34,8 +48,6 @@ public static class SaveManager
             PlayerPrefs.GetInt(PlayerYKey, 1)
         );
     }
-
-    public static int BestLevel => PlayerPrefs.GetInt(BestLevelKey, 0);
 
     public static void TrySaveBestLevel(int level)
     {

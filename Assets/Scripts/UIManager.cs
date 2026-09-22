@@ -1,70 +1,139 @@
+// Copyright (c) 2003-2026 Autism Group. All Rights Reserved.
+
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
+using TMPro;
 
 public class UIManager : MonoBehaviour
 {
     public static UIManager Instance { get; private set; }
 
     [Header("Panels")]
-    public GameObject MainMenuPanel;
-    public GameObject HUDPanel;
-    public GameObject PausePanel;
-    public GameObject GameOverPanel;
-    public GameObject SettingsPanel;
+    [FormerlySerializedAs("MainMenuPanel")]
+    [SerializeField] private GameObject _mainMenuPanel;
+
+    [FormerlySerializedAs("HUDPanel")]
+    [SerializeField] private GameObject _hudPanel;
+
+    [FormerlySerializedAs("PausePanel")]
+    [SerializeField] private GameObject _pausePanel;
+
+    [FormerlySerializedAs("GameOverPanel")]
+    [SerializeField] private GameObject _gameOverPanel;
+
+    [FormerlySerializedAs("SettingsPanel")]
+    [SerializeField] private GameObject _settingsPanel;
 
     [Header("Main Menu")]
-    public Button StartButton;
-    public Button ContinueButton;
-    public Button QuitButton;
-    public Button SettingsButton;
-    public TextMeshProUGUI BestScoreText;
-    public TextMeshProUGUI TitleText;
+    [FormerlySerializedAs("StartButton")]
+    [SerializeField] private Button _startButton;
+
+    [FormerlySerializedAs("ContinueButton")]
+    [SerializeField] private Button _continueButton;
+
+    [FormerlySerializedAs("QuitButton")]
+    [SerializeField] private Button _quitButton;
+
+    [FormerlySerializedAs("SettingsButton")]
+    [SerializeField] private Button _settingsButton;
+
+    [FormerlySerializedAs("BestScoreText")]
+    [SerializeField] private TextMeshProUGUI _bestScoreText;
+
+    [FormerlySerializedAs("TitleText")]
+    [SerializeField] private TextMeshProUGUI _titleText;
 
     [Header("HUD")]
-    public Button PauseButton;
-    public TextMeshProUGUI FoodLabel;
-    public TextMeshProUGUI GoToExitText;
-    public TextMeshProUGUI HintText;
-    public Color NormalFoodColor = Color.white;
-    public Color LowFoodColor = Color.red;
-    public int LowFoodThreshold = 5;
-    public float BlinkSpeed = 2f;
+    [FormerlySerializedAs("PauseButton")]
+    [SerializeField] private Button _pauseButton;
 
-    public Color GoToExitColorA = Color.white;
-    public Color GoToExitColorB = Color.yellow;
-    public float GoToExitBlinkSpeed = 2f;
+    [FormerlySerializedAs("FoodLabel")]
+    [SerializeField] private TextMeshProUGUI _foodLabel;
 
-    public float HintCharDelay = 0.03f;
-    public float HintDuration = 5f;
+    [FormerlySerializedAs("GoToExitText")]
+    [SerializeField] private TextMeshProUGUI _goToExitText;
+
+    [FormerlySerializedAs("HintText")]
+    [SerializeField] private TextMeshProUGUI _hintText;
+
+    [FormerlySerializedAs("NormalFoodColor")]
+    [SerializeField] private Color _normalFoodColor = Color.white;
+
+    [FormerlySerializedAs("LowFoodColor")]
+    [SerializeField] private Color _lowFoodColor = Color.red;
+
+    [FormerlySerializedAs("LowFoodThreshold")]
+    [SerializeField] private int _lowFoodThreshold = 5;
+
+    [FormerlySerializedAs("BlinkSpeed")]
+    [SerializeField] private float _blinkSpeed = 2f;
+
+    [FormerlySerializedAs("GoToExitColorA")]
+    [SerializeField] private Color _goToExitColorA = Color.white;
+
+    [FormerlySerializedAs("GoToExitColorB")]
+    [SerializeField] private Color _goToExitColorB = Color.yellow;
+
+    [FormerlySerializedAs("GoToExitBlinkSpeed")]
+    [SerializeField] private float _goToExitBlinkSpeed = 2f;
+
+    [FormerlySerializedAs("HintCharDelay")]
+    [SerializeField] private float _hintCharDelay = 0.03f;
+
+    [FormerlySerializedAs("HintDuration")]
+    [SerializeField] private float _hintDuration = 5f;
 
     [Header("Pause")]
-    public Button ResumeButton;
-    public Button PauseMainMenuButton;
-    public Button PauseSettingsButton;
-    public TextMeshProUGUI PauseTitle;
+    [FormerlySerializedAs("ResumeButton")]
+    [SerializeField] private Button _resumeButton;
+
+    [FormerlySerializedAs("PauseMainMenuButton")]
+    [SerializeField] private Button _pauseMainMenuButton;
+
+    [FormerlySerializedAs("PauseSettingsButton")]
+    [SerializeField] private Button _pauseSettingsButton;
+
+    [FormerlySerializedAs("PauseTitle")]
+    [SerializeField] private TextMeshProUGUI _pauseTitle;
 
     [Header("Settings")]
-    public Toggle MusicToggle;
-    public Toggle SFXToggle;
-    public Button SettingsBackButton;
-    public TMP_Dropdown LanguageDropdown;
-    public TextMeshProUGUI SettingsTitle;
+    [FormerlySerializedAs("MusicToggle")]
+    [SerializeField] private Toggle _musicToggle;
+
+    [FormerlySerializedAs("SFXToggle")]
+    [SerializeField] private Toggle _sfxToggle;
+
+    [FormerlySerializedAs("SettingsBackButton")]
+    [SerializeField] private Button _settingsBackButton;
+
+    [FormerlySerializedAs("LanguageDropdown")]
+    [SerializeField] private TMP_Dropdown _languageDropdown;
+
+    [FormerlySerializedAs("SettingsTitle")]
+    [SerializeField] private TextMeshProUGUI _settingsTitle;
 
     [Header("Game Over")]
-    public Button RestartButton;
-    public Button GameOverMainMenuButton;
-    public TextMeshProUGUI GameOverTitle;
-    public TextMeshProUGUI GameOverBestText;
+    [FormerlySerializedAs("RestartButton")]
+    [SerializeField] private Button _restartButton;
 
-    private GameObject m_PreviousPanel;
-    private bool m_IsLowFood = false;
-    private bool m_IsGoToExitVisible = false;
-    private bool m_IsChangingLanguage = false;
-    private Coroutine m_HintCoroutine;
-    private bool m_HintVisible = false;
-    private bool m_HintTyping = false;
+    [FormerlySerializedAs("GameOverMainMenuButton")]
+    [SerializeField] private Button _gameOverMainMenuButton;
+
+    [FormerlySerializedAs("GameOverTitle")]
+    [SerializeField] private TextMeshProUGUI _gameOverTitle;
+
+    [FormerlySerializedAs("GameOverBestText")]
+    [SerializeField] private TextMeshProUGUI _gameOverBestText;
+
+    private GameObject _previousPanel;
+    private bool _isLowFood;
+    private bool _isGoToExitVisible;
+    private bool _isChangingLanguage;
+    private Coroutine _hintCoroutine;
+    private bool _hintVisible;
+    private bool _hintTyping;
 
     private void Awake()
     {
@@ -73,42 +142,43 @@ public class UIManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
+
         Instance = this;
     }
 
     private void Start()
     {
-        if (StartButton != null) StartButton.onClick.AddListener(OnStartClicked);
-        if (ContinueButton != null) ContinueButton.onClick.AddListener(OnContinueClicked);
-        if (QuitButton != null) QuitButton.onClick.AddListener(OnQuitClicked);
-        if (SettingsButton != null) SettingsButton.onClick.AddListener(OnSettingsClicked);
-        if (PauseButton != null) PauseButton.onClick.AddListener(OnPauseClicked);
-        if (ResumeButton != null) ResumeButton.onClick.AddListener(OnResumeClicked);
-        if (PauseMainMenuButton != null) PauseMainMenuButton.onClick.AddListener(OnMainMenuClicked);
-        if (PauseSettingsButton != null) PauseSettingsButton.onClick.AddListener(OnSettingsClicked);
-        if (SettingsBackButton != null) SettingsBackButton.onClick.AddListener(OnSettingsBackClicked);
-        if (RestartButton != null) RestartButton.onClick.AddListener(OnRestartClicked);
-        if (GameOverMainMenuButton != null) GameOverMainMenuButton.onClick.AddListener(OnMainMenuClicked);
+        if (_startButton != null) _startButton.onClick.AddListener(OnStartClicked);
+        if (_continueButton != null) _continueButton.onClick.AddListener(OnContinueClicked);
+        if (_quitButton != null) _quitButton.onClick.AddListener(OnQuitClicked);
+        if (_settingsButton != null) _settingsButton.onClick.AddListener(OnSettingsClicked);
+        if (_pauseButton != null) _pauseButton.onClick.AddListener(OnPauseClicked);
+        if (_resumeButton != null) _resumeButton.onClick.AddListener(OnResumeClicked);
+        if (_pauseMainMenuButton != null) _pauseMainMenuButton.onClick.AddListener(OnMainMenuClicked);
+        if (_pauseSettingsButton != null) _pauseSettingsButton.onClick.AddListener(OnSettingsClicked);
+        if (_settingsBackButton != null) _settingsBackButton.onClick.AddListener(OnSettingsBackClicked);
+        if (_restartButton != null) _restartButton.onClick.AddListener(OnRestartClicked);
+        if (_gameOverMainMenuButton != null) _gameOverMainMenuButton.onClick.AddListener(OnMainMenuClicked);
 
-        if (LanguageDropdown != null)
+        if (_languageDropdown != null)
         {
-            LanguageDropdown.ClearOptions();
-            LanguageDropdown.AddOptions(new System.Collections.Generic.List<string> { "English", "Русский" });
-            LanguageDropdown.value = (int)LocalizationManager.Current;
-            LanguageDropdown.RefreshShownValue();
-            LanguageDropdown.onValueChanged.AddListener(OnLanguageChanged);
+            _languageDropdown.ClearOptions();
+            _languageDropdown.AddOptions(new System.Collections.Generic.List<string> { "English", "Русский" });
+            _languageDropdown.value = (int)LocalizationManager.Current;
+            _languageDropdown.RefreshShownValue();
+            _languageDropdown.onValueChanged.AddListener(OnLanguageChanged);
         }
 
-        if (MusicToggle != null)
+        if (_musicToggle != null)
         {
-            MusicToggle.isOn = AudioManager.Instance.IsMusicOn();
-            MusicToggle.onValueChanged.AddListener(OnMusicToggled);
+            _musicToggle.isOn = AudioManager.Instance.IsMusicOn();
+            _musicToggle.onValueChanged.AddListener(OnMusicToggled);
         }
 
-        if (SFXToggle != null)
+        if (_sfxToggle != null)
         {
-            SFXToggle.isOn = AudioManager.Instance.IsSFXOn();
-            SFXToggle.onValueChanged.AddListener(OnSFXToggled);
+            _sfxToggle.isOn = AudioManager.Instance.IsSFXOn();
+            _sfxToggle.onValueChanged.AddListener(OnSFXToggled);
         }
 
         LocalizationManager.OnLanguageChanged += RefreshUI;
@@ -121,246 +191,280 @@ public class UIManager : MonoBehaviour
         LocalizationManager.OnLanguageChanged -= RefreshUI;
     }
 
-    public void RefreshUI()
-    {
-        SetButtonText(StartButton, "start");
-        SetButtonText(ContinueButton, "continue");
-        SetButtonText(QuitButton, "quit");
-        SetButtonText(SettingsButton, "settings");
-        SetButtonText(ResumeButton, "resume");
-        SetButtonText(PauseMainMenuButton, "mainmenu");
-        SetButtonText(PauseSettingsButton, "settings");
-        SetButtonText(SettingsBackButton, "back");
-        SetButtonText(RestartButton, "restart");
-        SetButtonText(GameOverMainMenuButton, "mainmenu");
-
-        if (TitleText != null)
-            TitleText.text = "Roguelike";
-
-        if (SettingsTitle != null)
-            SettingsTitle.text = LocalizationManager.Get("settings");
-
-        if (PauseTitle != null)
-            PauseTitle.text = LocalizationManager.Get("paused");
-
-        if (GameOverTitle != null)
-            GameOverTitle.text = LocalizationManager.Get("gameover");
-
-        if (GoToExitText != null)
-            GoToExitText.text = LocalizationManager.Get("goexit");
-
-        if (MusicToggle != null)
-        {
-            TextMeshProUGUI lbl = MusicToggle.GetComponentInChildren<TextMeshProUGUI>();
-            if (lbl != null) lbl.text = LocalizationManager.Get("music");
-        }
-
-        if (SFXToggle != null)
-        {
-            TextMeshProUGUI lbl = SFXToggle.GetComponentInChildren<TextMeshProUGUI>();
-            if (lbl != null) lbl.text = LocalizationManager.Get("sounds");
-        }
-
-        if (LanguageDropdown != null)
-        {
-            m_IsChangingLanguage = true;
-            LanguageDropdown.value = (int)LocalizationManager.Current;
-            LanguageDropdown.RefreshShownValue();
-            m_IsChangingLanguage = false;
-        }
-    }
-
-    void SetButtonText(Button button, string key)
-    {
-        if (button == null) return;
-
-        TextMeshProUGUI text = button.GetComponentInChildren<TextMeshProUGUI>();
-        if (text != null)
-            text.text = LocalizationManager.Get(key);
-    }
-
     private void Update()
     {
-        if (FoodLabel != null && m_IsLowFood)
+        if (_foodLabel != null && _isLowFood)
         {
-            float t = Mathf.PingPong(Time.unscaledTime * BlinkSpeed, 1f);
-            FoodLabel.color = Color.Lerp(NormalFoodColor, LowFoodColor, t);
+            float t = Mathf.PingPong(Time.unscaledTime * _blinkSpeed, 1f);
+            _foodLabel.color = Color.Lerp(_normalFoodColor, _lowFoodColor, t);
         }
 
-        if (GoToExitText != null && m_IsGoToExitVisible)
+        if (_goToExitText != null && _isGoToExitVisible)
         {
-            float t = Mathf.PingPong(Time.unscaledTime * GoToExitBlinkSpeed, 1f);
-            GoToExitText.color = Color.Lerp(GoToExitColorA, GoToExitColorB, t);
+            float t = Mathf.PingPong(Time.unscaledTime * _goToExitBlinkSpeed, 1f);
+            _goToExitText.color = Color.Lerp(_goToExitColorA, _goToExitColorB, t);
         }
 
-        if (m_HintVisible)
+        if (_hintVisible)
         {
             bool skip = false;
 
             if (Keyboard.current != null && Keyboard.current.anyKey.wasPressedThisFrame)
+            {
                 skip = true;
+            }
 
             if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
+            {
                 skip = true;
+            }
 
             if (skip)
+            {
                 SkipHint();
+            }
+        }
+    }
+
+    public void RefreshUI()
+    {
+        SetButtonText(_startButton, "start");
+        SetButtonText(_continueButton, "continue");
+        SetButtonText(_quitButton, "quit");
+        SetButtonText(_settingsButton, "settings");
+        SetButtonText(_resumeButton, "resume");
+        SetButtonText(_pauseMainMenuButton, "mainmenu");
+        SetButtonText(_pauseSettingsButton, "settings");
+        SetButtonText(_settingsBackButton, "back");
+        SetButtonText(_restartButton, "restart");
+        SetButtonText(_gameOverMainMenuButton, "mainmenu");
+
+        if (_titleText != null)
+        {
+            _titleText.text = "Roguelike";
+        }
+
+        if (_settingsTitle != null)
+        {
+            _settingsTitle.text = LocalizationManager.Get("settings");
+        }
+
+        if (_pauseTitle != null)
+        {
+            _pauseTitle.text = LocalizationManager.Get("paused");
+        }
+
+        if (_gameOverTitle != null)
+        {
+            _gameOverTitle.text = LocalizationManager.Get("gameover");
+        }
+
+        if (_goToExitText != null)
+        {
+            _goToExitText.text = LocalizationManager.Get("goexit");
+        }
+
+        if (_musicToggle != null)
+        {
+            TextMeshProUGUI label = _musicToggle.GetComponentInChildren<TextMeshProUGUI>();
+
+            if (label != null)
+            {
+                label.text = LocalizationManager.Get("music");
+            }
+        }
+
+        if (_sfxToggle != null)
+        {
+            TextMeshProUGUI label = _sfxToggle.GetComponentInChildren<TextMeshProUGUI>();
+
+            if (label != null)
+            {
+                label.text = LocalizationManager.Get("sounds");
+            }
+        }
+
+        if (_languageDropdown != null)
+        {
+            _isChangingLanguage = true;
+            _languageDropdown.value = (int)LocalizationManager.Current;
+            _languageDropdown.RefreshShownValue();
+            _isChangingLanguage = false;
         }
     }
 
     public void ShowMainMenu()
     {
         Time.timeScale = 1f;
-        SetActive(MainMenuPanel, true);
-        SetActive(HUDPanel, false);
-        SetActive(PausePanel, false);
-        SetActive(GameOverPanel, false);
-        SetActive(SettingsPanel, false);
-        m_PreviousPanel = MainMenuPanel;
+        SetActive(_mainMenuPanel, true);
+        SetActive(_hudPanel, false);
+        SetActive(_pausePanel, false);
+        SetActive(_gameOverPanel, false);
+        SetActive(_settingsPanel, false);
 
+        _previousPanel = _mainMenuPanel;
+
+        ShowFoodLabel(false);
+        HideGoToExit();
         HideHint();
 
-        if (ContinueButton != null)
-            ContinueButton.gameObject.SetActive(SaveManager.HasSave);
+        if (_continueButton != null)
+        {
+            _continueButton.gameObject.SetActive(SaveManager.HasSave);
+        }
 
-        if (BestScoreText != null)
-            BestScoreText.text = LocalizationManager.Get("best") + ": " + SaveManager.BestLevel + " " + LocalizationManager.Get("days");
+        if (_bestScoreText != null)
+        {
+            _bestScoreText.text = LocalizationManager.Get("best") + ": " + SaveManager.BestLevel + " " + LocalizationManager.Get("days");
+        }
     }
 
     public void ShowHUD(bool showHint = false)
     {
         Time.timeScale = 1f;
-        SetActive(MainMenuPanel, false);
-        SetActive(HUDPanel, true);
-        SetActive(PausePanel, false);
-        SetActive(GameOverPanel, false);
-        SetActive(SettingsPanel, false);
+        SetActive(_mainMenuPanel, false);
+        SetActive(_hudPanel, true);
+        SetActive(_pausePanel, false);
+        SetActive(_gameOverPanel, false);
+        SetActive(_settingsPanel, false);
 
-        m_IsGoToExitVisible = false;
+        ShowFoodLabel(true);
+        _isGoToExitVisible = false;
 
-        if (GoToExitText != null)
-            GoToExitText.gameObject.SetActive(false);
+        if (_goToExitText != null)
+        {
+            _goToExitText.gameObject.SetActive(false);
+        }
 
         if (showHint)
+        {
             ShowHint();
+        }
         else
+        {
             HideHint();
+        }
     }
 
     public void ShowPause()
     {
         Time.timeScale = 0f;
-        SetActive(MainMenuPanel, false);
-        SetActive(HUDPanel, true);
-        SetActive(PausePanel, true);
-        SetActive(GameOverPanel, false);
-        SetActive(SettingsPanel, false);
-        m_PreviousPanel = PausePanel;
+        SetActive(_mainMenuPanel, false);
+        SetActive(_hudPanel, true);
+        SetActive(_pausePanel, true);
+        SetActive(_gameOverPanel, false);
+        SetActive(_settingsPanel, false);
 
-        if (PauseTitle != null)
-            PauseTitle.text = LocalizationManager.Get("paused");
+        _previousPanel = _pausePanel;
+
+        ShowFoodLabel(true);
+        HideGoToExit();
+        HideHint();
+
+        if (_pauseTitle != null)
+        {
+            _pauseTitle.text = LocalizationManager.Get("paused");
+        }
     }
 
     public void ShowGameOver()
     {
         Time.timeScale = 1f;
-        SetActive(MainMenuPanel, false);
-        SetActive(HUDPanel, false);
-        SetActive(PausePanel, false);
-        SetActive(GameOverPanel, true);
-        SetActive(SettingsPanel, false);
-        m_PreviousPanel = GameOverPanel;
+        SetActive(_mainMenuPanel, false);
+        SetActive(_hudPanel, false);
+        SetActive(_pausePanel, false);
+        SetActive(_gameOverPanel, true);
+        SetActive(_settingsPanel, false);
 
-        if (GameOverBestText != null)
-            GameOverBestText.text = LocalizationManager.Get("best") + ": " + SaveManager.BestLevel + " " + LocalizationManager.Get("days");
+        _previousPanel = _gameOverPanel;
 
-        if (GameOverTitle != null)
-            GameOverTitle.text = LocalizationManager.Get("gameover");
+        ShowFoodLabel(false);
+        HideGoToExit();
+        HideHint();
+
+        if (_gameOverBestText != null)
+        {
+            _gameOverBestText.text = LocalizationManager.Get("best") + ": " + SaveManager.BestLevel + " " + LocalizationManager.Get("days");
+        }
+
+        if (_gameOverTitle != null)
+        {
+            _gameOverTitle.text = LocalizationManager.Get("gameover");
+        }
     }
 
     public void ShowSettings()
     {
-        SetActive(MainMenuPanel, false);
-        SetActive(HUDPanel, false);
-        SetActive(PausePanel, false);
-        SetActive(GameOverPanel, false);
-        SetActive(SettingsPanel, true);
+        SetActive(_mainMenuPanel, false);
+        SetActive(_hudPanel, false);
+        SetActive(_pausePanel, false);
+        SetActive(_gameOverPanel, false);
+        SetActive(_settingsPanel, true);
 
-        if (MusicToggle != null) MusicToggle.isOn = AudioManager.Instance.IsMusicOn();
-        if (SFXToggle != null) SFXToggle.isOn = AudioManager.Instance.IsSFXOn();
+        ShowFoodLabel(false);
+        HideGoToExit();
+        HideHint();
 
-        if (SettingsTitle != null)
-            SettingsTitle.text = LocalizationManager.Get("settings");
+        if (_musicToggle != null)
+        {
+            _musicToggle.isOn = AudioManager.Instance.IsMusicOn();
+        }
+
+        if (_sfxToggle != null)
+        {
+            _sfxToggle.isOn = AudioManager.Instance.IsSFXOn();
+        }
+
+        if (_settingsTitle != null)
+        {
+            _settingsTitle.text = LocalizationManager.Get("settings");
+        }
     }
 
     public void ShowGoToExit()
     {
-        if (GoToExitText == null) return;
+        if (_goToExitText == null)
+        {
+            return;
+        }
 
-        m_IsGoToExitVisible = true;
-        GoToExitText.gameObject.SetActive(true);
+        _isGoToExitVisible = true;
+        _goToExitText.gameObject.SetActive(true);
 
         CancelInvoke(nameof(HideGoToExit));
         Invoke(nameof(HideGoToExit), 3f);
     }
 
-    void HideGoToExit()
-    {
-        m_IsGoToExitVisible = false;
-
-        if (GoToExitText != null)
-            GoToExitText.gameObject.SetActive(false);
-    }
-
     public void ShowHint()
     {
-        if (HintText == null) return;
-
-        if (m_HintCoroutine != null)
-            StopCoroutine(m_HintCoroutine);
-
-        m_HintCoroutine = StartCoroutine(TypeHint());
-    }
-
-    private System.Collections.IEnumerator TypeHint()
-    {
-        HintText.text = "";
-        HintText.gameObject.SetActive(true);
-        HintText.raycastTarget = false;
-
-        m_HintVisible = true;
-        m_HintTyping = true;
-
-        string full = LocalizationManager.Get("hint");
-
-        for (int i = 0; i <= full.Length; i++)
+        if (_hintText == null)
         {
-            if (!m_HintTyping)
-            {
-                HintText.text = full;
-                break;
-            }
-
-            HintText.text = full.Substring(0, i);
-            yield return new WaitForSecondsRealtime(HintCharDelay);
+            return;
         }
 
-        m_HintTyping = false;
+        if (_hintCoroutine != null)
+        {
+            StopCoroutine(_hintCoroutine);
+        }
 
-        yield return new WaitForSecondsRealtime(HintDuration);
-
-        HideHint();
+        _hintCoroutine = StartCoroutine(TypeHint());
     }
 
     public void SkipHint()
     {
-        if (!m_HintVisible) return;
-
-        if (m_HintTyping)
+        if (!_hintVisible)
         {
-            m_HintTyping = false;
-            if (HintText != null)
-                HintText.text = LocalizationManager.Get("hint");
+            return;
+        }
+
+        if (_hintTyping)
+        {
+            _hintTyping = false;
+
+            if (_hintText != null)
+            {
+                _hintText.text = LocalizationManager.Get("hint");
+            }
         }
         else
         {
@@ -368,96 +472,196 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    void HideHint()
-    {
-        m_HintVisible = false;
-        m_HintTyping = false;
-
-        if (m_HintCoroutine != null)
-        {
-            StopCoroutine(m_HintCoroutine);
-            m_HintCoroutine = null;
-        }
-
-        if (HintText != null)
-            HintText.gameObject.SetActive(false);
-    }
-
     public void UpdateFood(int amount)
     {
-        if (FoodLabel == null) return;
+        if (_foodLabel == null)
+        {
+            return;
+        }
 
-        FoodLabel.text = LocalizationManager.Get("food") + " : " + amount;
+        _foodLabel.text = LocalizationManager.Get("food") + " : " + amount;
 
-        if (amount <= LowFoodThreshold)
-            m_IsLowFood = true;
+        if (amount <= _lowFoodThreshold)
+        {
+            _isLowFood = true;
+        }
         else
         {
-            m_IsLowFood = false;
-            FoodLabel.color = NormalFoodColor;
+            _isLowFood = false;
+            _foodLabel.color = _normalFoodColor;
         }
     }
 
     public void ShowFoodLabel(bool value)
     {
-        if (FoodLabel != null)
-            FoodLabel.gameObject.SetActive(value);
+        if (_foodLabel != null)
+        {
+            _foodLabel.gameObject.SetActive(value);
+        }
     }
 
-    void OnStartClicked()
+    private void SetButtonText(Button button, string key)
+    {
+        if (button == null)
+        {
+            return;
+        }
+
+        TextMeshProUGUI text = button.GetComponentInChildren<TextMeshProUGUI>();
+
+        if (text != null)
+        {
+            text.text = LocalizationManager.Get(key);
+        }
+    }
+
+    private void HideGoToExit()
+    {
+        _isGoToExitVisible = false;
+
+        if (_goToExitText != null)
+        {
+            _goToExitText.gameObject.SetActive(false);
+        }
+    }
+
+    private System.Collections.IEnumerator TypeHint()
+    {
+        _hintText.text = "";
+        _hintText.gameObject.SetActive(true);
+        _hintText.raycastTarget = false;
+
+        _hintVisible = true;
+        _hintTyping = true;
+
+        string full = LocalizationManager.Get("hint");
+
+        for (int i = 0; i <= full.Length; i++)
+        {
+            if (!_hintTyping)
+            {
+                _hintText.text = full;
+                break;
+            }
+
+            _hintText.text = full.Substring(0, i);
+            yield return new WaitForSecondsRealtime(_hintCharDelay);
+        }
+
+        _hintTyping = false;
+
+        yield return new WaitForSecondsRealtime(_hintDuration);
+
+        HideHint();
+    }
+
+    private void HideHint()
+    {
+        _hintVisible = false;
+        _hintTyping = false;
+
+        if (_hintCoroutine != null)
+        {
+            StopCoroutine(_hintCoroutine);
+            _hintCoroutine = null;
+        }
+
+        if (_hintText != null)
+        {
+            _hintText.gameObject.SetActive(false);
+        }
+    }
+
+    private void OnStartClicked()
     {
         ShowHUD(true);
         GameManager.Instance.StartNewGame();
     }
 
-    void OnContinueClicked()
+    private void OnContinueClicked()
     {
         ShowHUD(false);
         GameManager.Instance.ContinueGame();
     }
 
-    void OnPauseClicked() => ShowPause();
-    void OnResumeClicked() => ShowHUD(false);
-
-    void OnSettingsClicked()
+    private void OnPauseClicked()
     {
-        if (PausePanel != null && PausePanel.activeSelf) m_PreviousPanel = PausePanel;
-        else if (GameOverPanel != null && GameOverPanel.activeSelf) m_PreviousPanel = GameOverPanel;
-        else m_PreviousPanel = MainMenuPanel;
+        ShowPause();
+    }
+
+    private void OnResumeClicked()
+    {
+        ShowHUD(false);
+    }
+
+    private void OnSettingsClicked()
+    {
+        if (_pausePanel != null && _pausePanel.activeSelf)
+        {
+            _previousPanel = _pausePanel;
+        }
+        else if (_gameOverPanel != null && _gameOverPanel.activeSelf)
+        {
+            _previousPanel = _gameOverPanel;
+        }
+        else
+        {
+            _previousPanel = _mainMenuPanel;
+        }
+
         ShowSettings();
     }
 
-    void OnSettingsBackClicked()
+    private void OnSettingsBackClicked()
     {
-        if (m_PreviousPanel == PausePanel) ShowPause();
-        else if (m_PreviousPanel == GameOverPanel) ShowGameOver();
-        else ShowMainMenu();
+        if (_previousPanel == _pausePanel)
+        {
+            ShowPause();
+        }
+        else if (_previousPanel == _gameOverPanel)
+        {
+            ShowGameOver();
+        }
+        else
+        {
+            ShowMainMenu();
+        }
     }
 
-    void OnLanguageChanged(int index)
+    private void OnLanguageChanged(int index)
     {
-        if (m_IsChangingLanguage) return;
+        if (_isChangingLanguage)
+        {
+            return;
+        }
 
         LocalizationManager.Current = (LocalizationManager.Language)index;
     }
 
-    void OnMusicToggled(bool value) => AudioManager.Instance.SetMusicOn(value);
-    void OnSFXToggled(bool value) => AudioManager.Instance.SetSFXOn(value);
+    private void OnMusicToggled(bool value)
+    {
+        AudioManager.Instance.SetMusicOn(value);
+    }
 
-    void OnRestartClicked()
+    private void OnSFXToggled(bool value)
+    {
+        AudioManager.Instance.SetSFXOn(value);
+    }
+
+    private void OnRestartClicked()
     {
         ShowHUD(false);
         GameManager.Instance.StartNewGame();
     }
 
-    void OnMainMenuClicked()
+    private void OnMainMenuClicked()
     {
         Time.timeScale = 1f;
         GameManager.Instance.ReturnToMainMenu();
         ShowMainMenu();
     }
 
-    void OnQuitClicked()
+    private void OnQuitClicked()
     {
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
@@ -466,9 +670,11 @@ public class UIManager : MonoBehaviour
 #endif
     }
 
-    void SetActive(GameObject panel, bool value)
+    private void SetActive(GameObject panel, bool value)
     {
         if (panel != null)
+        {
             panel.SetActive(value);
+        }
     }
 }

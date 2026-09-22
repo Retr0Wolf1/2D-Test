@@ -1,18 +1,20 @@
+// Copyright (c) 2003-2026 Autism Group. All Rights Reserved.
+
 using UnityEngine;
 
 public class MusicPlayer : MonoBehaviour
 {
-    private static MusicPlayer m_Instance;
+    private static MusicPlayer _instance;
 
     private void Awake()
     {
-        if (m_Instance != null)
+        if (_instance != null)
         {
             Destroy(gameObject);
             return;
         }
 
-        m_Instance = this;
+        _instance = this;
         DontDestroyOnLoad(gameObject);
     }
 }

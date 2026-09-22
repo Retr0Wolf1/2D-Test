@@ -1,14 +1,23 @@
+// Copyright (c) 2003-2026 Autism Group. All Rights Reserved.
+
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class AudioManager : MonoBehaviour
 {
     public static AudioManager Instance { get; private set; }
 
-    public AudioSource MusicSource;
-    public AudioSource SFXSource;
-
     private const string MusicKey = "MusicOn";
     private const string SFXKey = "SFXOn";
+
+    [FormerlySerializedAs("MusicSource")]
+    [SerializeField] private AudioSource _musicSource;
+
+    [FormerlySerializedAs("SFXSource")]
+    [SerializeField] private AudioSource _sfxSource;
+
+    public AudioSource MusicSource => _musicSource;
+    public AudioSource SFXSource => _sfxSource;
 
     private void Awake()
     {
@@ -17,6 +26,7 @@ public class AudioManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
+
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
@@ -28,24 +38,46 @@ public class AudioManager : MonoBehaviour
         bool musicOn = PlayerPrefs.GetInt(MusicKey, 1) == 1;
         bool sfxOn = PlayerPrefs.GetInt(SFXKey, 1) == 1;
 
-        if (MusicSource != null) MusicSource.mute = !musicOn;
-        if (SFXSource != null) SFXSource.mute = !sfxOn;
+        if (_musicSource != null)
+        {
+            _musicSource.mute = !musicOn;
+        }
+
+        if (_sfxSource != null)
+        {
+            _sfxSource.mute = !sfxOn;
+        }
     }
 
     public void SetMusicOn(bool on)
     {
-        if (MusicSource != null) MusicSource.mute = !on;
+        if (_musicSource != null)
+        {
+            _musicSource.mute = !on;
+        }
+
         PlayerPrefs.SetInt(MusicKey, on ? 1 : 0);
         PlayerPrefs.Save();
     }
 
     public void SetSFXOn(bool on)
     {
-        if (SFXSource != null) SFXSource.mute = !on;
+        if (_sfxSource != null)
+        {
+            _sfxSource.mute = !on;
+        }
+
         PlayerPrefs.SetInt(SFXKey, on ? 1 : 0);
         PlayerPrefs.Save();
     }
 
-    public bool IsMusicOn() => PlayerPrefs.GetInt(MusicKey, 1) == 1;
-    public bool IsSFXOn() => PlayerPrefs.GetInt(SFXKey, 1) == 1;
+    public bool IsMusicOn()
+    {
+        return PlayerPrefs.GetInt(MusicKey, 1) == 1;
+    }
+
+    public bool IsSFXOn()
+    {
+        return PlayerPrefs.GetInt(SFXKey, 1) == 1;
+    }
 }

@@ -1,30 +1,37 @@
+// Copyright (c) 2003-2026 Autism Group. All Rights Reserved.
+
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using UnityEngine.Serialization;
 
 public class WallObject : CellObject
 {
-    public Tile ObstacleTile;
-    public int MaxHealth = 3;
+    [FormerlySerializedAs("ObstacleTile")]
+    [SerializeField] private Tile _obstacleTile;
 
-    public WallObject NextWallPrefab;
+    [FormerlySerializedAs("MaxHealth")]
+    [SerializeField] private int _maxHealth = 3;
 
-    private int m_HealthPoint;
-    private Tile m_OriginalTile;
+    [FormerlySerializedAs("NextWallPrefab")]
+    [SerializeField] private WallObject _nextWallPrefab;
+
+    private int _healthPoint;
+    private Tile _originalTile;
 
     public override void Init(Vector2Int cell)
     {
         base.Init(cell);
 
-        m_HealthPoint = MaxHealth;
-        m_OriginalTile = GameManager.Instance.BoardManager.GetCellTile(cell);
-        GameManager.Instance.BoardManager.SetCellTile(cell, ObstacleTile);
+        _healthPoint = _maxHealth;
+        _originalTile = GameManager.Instance.BoardManager.GetCellTile(cell);
+        GameManager.Instance.BoardManager.SetCellTile(cell, _obstacleTile);
     }
 
     public override bool PlayerWantsToEnter()
     {
-        m_HealthPoint -= 1;
+        _healthPoint -= 1;
 
-        if (m_HealthPoint > 0)
+        if (_healthPoint > 0)
         {
             ReplaceWithNext();
             return false;
@@ -34,32 +41,35 @@ public class WallObject : CellObject
         return true;
     }
 
-    void ReplaceWithNext()
+    private void ReplaceWithNext()
     {
-        if (NextWallPrefab == null)
+        if (_nextWallPrefab == null)
+        {
             return;
+        }
 
-        var board = GameManager.Instance.BoardManager;
+        BoardManager board = GameManager.Instance.BoardManager;
 
-        WallObject newWall = Instantiate(NextWallPrefab);
+        WallObject newWall = Instantiate(_nextWallPrefab);
 
-        board.SetCellTile(m_Cell, m_OriginalTile);
+        board.SetCellTile(_cell, _originalTile);
 
-        var cellData = board.GetCellData(m_Cell);
+        BoardManager.CellData cellData = board.GetCellData(_cell);
         cellData.ContainedObject = newWall;
 
         newWall.transform.position = transform.position;
-        newWall.Init(m_Cell);
+        newWall.Init(_cell);
 
         Destroy(gameObject);
     }
 
-    void BreakWall()
+    private void BreakWall()
     {
-        var board = GameManager.Instance.BoardManager;
-        board.SetCellTile(m_Cell, m_OriginalTile);
+        BoardManager board = GameManager.Instance.BoardManager;
+        board.SetCellTile(_cell, _originalTile);
 
-        var cellData = board.GetCellData(m_Cell);
+        BoardManager.CellData cellData = board.GetCellData(_cell);
+
         if (cellData != null)
         {
             cellData.Passable = true;

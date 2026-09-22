@@ -1,17 +1,25 @@
+// Copyright (c) 2003-2026 Autism Group. All Rights Reserved.
+    
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
 
-    public BoardManager BoardManager;
-    public PlayerController PlayerController;
+    [FormerlySerializedAs("BoardManager")]
+    [SerializeField] private BoardManager _boardManager;
 
+    [FormerlySerializedAs("PlayerController")]
+    [SerializeField] private PlayerController _playerController;
+
+    private int _foodAmount = 100;
+    private int _currentLevel = 1;
+    private bool _isGameOver;
+
+    public BoardManager BoardManager => _boardManager;
+    public PlayerController PlayerController => _playerController;
     public TurnManager TurnManager { get; private set; }
-
-    private int m_FoodAmount = 100;
-    private int m_CurrentLevel = 1;
-    private bool m_IsGameOver = false;
 
     private void Awake()
     {
@@ -20,116 +28,141 @@ public class GameManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
+
         Instance = this;
     }
 
-    void Start()
+    private void Start()
     {
         TurnManager = new TurnManager();
         TurnManager.OnTick += OnTurnHappen;
 
-        PlayerController.gameObject.SetActive(false);
+        _playerController.gameObject.SetActive(false);
     }
-
-    void OnTurnHappen() => ChangeFood(-1);
 
     public void ChangeFood(int amount)
     {
-        m_FoodAmount += amount;
-        UIManager.Instance.UpdateFood(m_FoodAmount);
+        _foodAmount += amount;
+
+        HudPageView hud = ViewManager.Instance.CurrentPage as HudPageView;
+
+        if (hud != null)
+        {
+            hud.UpdateFood(_foodAmount);
+        }
 
         SaveGame();
 
-        if (m_FoodAmount <= 0)
+        if (_foodAmount <= 0)
         {
-            m_IsGameOver = true;
-            SaveManager.TrySaveBestLevel(m_CurrentLevel);
+            _isGameOver = true;
+            SaveManager.TrySaveBestLevel(_currentLevel);
             SaveManager.ClearSave();
 
-            PlayerController.GameOver();
-            UIManager.Instance.ShowGameOver();
+            _playerController.GameOver();
+            ViewManager.Instance.OpenPopup<GameOverPopupView>();
         }
     }
 
     public void NewLevel()
     {
-        m_CurrentLevel++;
-        SaveManager.TrySaveBestLevel(m_CurrentLevel);
+        _currentLevel++;
+        SaveManager.TrySaveBestLevel(_currentLevel);
 
-        BoardManager.Clean();
-        BoardManager.Init();
-        PlayerController.Spawn(BoardManager, new Vector2Int(1, 1));
+        _boardManager.Clean();
+        _boardManager.Init();
+        _playerController.Spawn(_boardManager, new Vector2Int(1, 1));
 
+        ViewManager.Instance.OpenPage<HudPageView>();
         SaveGame();
     }
 
     public void StartNewGame()
     {
-        m_IsGameOver = false;
+        _isGameOver = false;
+        _currentLevel = 1;
+        _foodAmount = 20;
 
-        m_CurrentLevel = 1;
-        m_FoodAmount = 20;
-        UIManager.Instance.UpdateFood(m_FoodAmount);
-        UIManager.Instance.ShowFoodLabel(true);
+        _boardManager.Seed = 0;
+        _boardManager.Clean();
+        _boardManager.Init();
 
-        BoardManager.Seed = 0;
+        _playerController.gameObject.SetActive(true);
+        _playerController.Init();
+        _playerController.Spawn(_boardManager, new Vector2Int(1, 1));
 
-        BoardManager.Clean();
-        BoardManager.Init();
+        ViewManager.Instance.OpenPage<HudPageView>();
 
-        PlayerController.gameObject.SetActive(true);
-        PlayerController.Init();
-        PlayerController.Spawn(BoardManager, new Vector2Int(1, 1));
+        HudPageView hud = ViewManager.Instance.CurrentPage as HudPageView;
+
+        if (hud != null)
+        {
+            hud.ShowHint();
+        }
 
         SaveGame();
     }
 
     public void ContinueGame()
     {
-        if (!SaveManager.HasSave) return;
+        if (!SaveManager.HasSave)
+        {
+            return;
+        }
 
-        m_IsGameOver = false;
+        _isGameOver = false;
+        _currentLevel = SaveManager.LoadLevel();
+        _foodAmount = SaveManager.LoadFood();
+        _boardManager.Seed = SaveManager.LoadSeed();
 
-        m_CurrentLevel = SaveManager.LoadLevel();
-        m_FoodAmount = SaveManager.LoadFood();
-        UIManager.Instance.UpdateFood(m_FoodAmount);
-        UIManager.Instance.ShowFoodLabel(true);
+        _boardManager.Clean();
+        _boardManager.Init();
 
-        BoardManager.Seed = SaveManager.LoadSeed();
+        _playerController.gameObject.SetActive(true);
+        _playerController.Init();
+        _playerController.Spawn(_boardManager, SaveManager.LoadPlayerPos());
 
-        BoardManager.Clean();
-        BoardManager.Init();
-
-        PlayerController.gameObject.SetActive(true);
-        PlayerController.Init();
-        PlayerController.Spawn(BoardManager, SaveManager.LoadPlayerPos());
-    }
-
-    void SaveGame()
-    {
-        if (BoardManager == null || PlayerController == null) return;
-        if (m_IsGameOver) return;
-
-        SaveManager.SaveGame(
-            BoardManager.Seed,
-            m_FoodAmount,
-            m_CurrentLevel,
-            PlayerController.Cell
-        );
+        ViewManager.Instance.OpenPage<HudPageView>();
     }
 
     public void ReturnToMainMenu()
     {
-        if (!m_IsGameOver)
+        if (!_isGameOver)
+        {
             SaveGame();
+        }
 
-        BoardManager.Clean();
-        UIManager.Instance.ShowFoodLabel(false);
-        PlayerController.gameObject.SetActive(false);
+        _boardManager.Clean();
+        _playerController.gameObject.SetActive(false);
     }
 
     public void ClearSave()
     {
         SaveManager.ClearSave();
+    }
+
+    private void OnTurnHappen()
+    {
+        ChangeFood(-1);
+    }
+
+    private void SaveGame()
+    {
+        if (_boardManager == null || _playerController == null)
+        {
+            return;
+        }
+
+        if (_isGameOver)
+        {
+            return;
+        }
+
+        SaveManager.SaveGame(
+            _boardManager.Seed,
+            _foodAmount,
+            _currentLevel,
+            _playerController.Cell
+        );
     }
 }

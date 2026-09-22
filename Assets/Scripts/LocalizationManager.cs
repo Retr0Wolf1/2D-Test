@@ -1,5 +1,7 @@
-using UnityEngine;
+// Copyright (c) 2003-2026 Autism Group. All Rights Reserved.
+
 using System.Collections.Generic;
+using UnityEngine;
 
 public static class LocalizationManager
 {
@@ -7,7 +9,7 @@ public static class LocalizationManager
 
     private const string LanguageKey = "SelectedLanguage";
 
-    private static Dictionary<string, string[]> Translations = new Dictionary<string, string[]>()
+    private static readonly Dictionary<string, string[]> Translations = new Dictionary<string, string[]>()
     {
         { "start",       new[] { "Start Game",     "Начать игру" } },
         { "continue",    new[] { "Continue",       "Продолжить" } },
@@ -27,20 +29,24 @@ public static class LocalizationManager
         { "paused",      new[] { "Paused",         "Пауза" } },
         { "language",    new[] { "Language",       "Язык" } },
 
-        { "hint", new[] {
-            "Goal: Find the exit!\n\n" +
-            "Move: Arrow Keys\n" +
-            "Attack: Move into enemy/wall\n" +
-            "Collect food to survive\n" +
-            "Kill all enemies to open the exit",
+        { "hint", new[]
+            {
+                "Goal: Find the exit!\n\n" +
+                "Move: Arrow Keys\n" +
+                "Attack: Move into enemy/wall\n" +
+                "Collect food to survive\n" +
+                "Kill all enemies to open the exit",
 
-            "Цель: Найди выход!\n\n" +
-            "Движение: Стрелки\n" +
-            "Атака: Иди на врага/стену\n" +
-            "Собирай еду чтобы выжить\n" +
-            "Убей всех врагов чтобы открыть выход"
-        } },
+                "Цель: Найди выход!\n\n" +
+                "Движение: Стрелки\n" +
+                "Атака: Иди на врага/стену\n" +
+                "Собирай еду чтобы выжить\n" +
+                "Убей всех врагов чтобы открыть выход"
+            }
+        },
     };
+
+    public static event System.Action OnLanguageChanged;
 
     public static Language Current
     {
@@ -53,18 +59,20 @@ public static class LocalizationManager
         }
     }
 
-    public static event System.Action OnLanguageChanged;
-
     public static string Get(string key)
     {
         if (!Translations.ContainsKey(key))
+        {
             return key;
+        }
 
         string[] variants = Translations[key];
         int index = (int)Current;
 
         if (index < 0 || index >= variants.Length)
+        {
             return variants[0];
+        }
 
         return variants[index];
     }

@@ -1,15 +1,21 @@
+// Copyright (c) 2003-2026 Autism Group. All Rights Reserved.
+
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class CameraFollow : MonoBehaviour
 {
-    public Transform Target;
-    public float SmoothSpeed = 5f;
+    [FormerlySerializedAs("Target")]
+    [SerializeField] private Transform _target;
 
-    private float m_MinX;
-    private float m_MaxX;
-    private float m_MinY;
-    private float m_MaxY;
-    private bool m_IsSetup;
+    [FormerlySerializedAs("SmoothSpeed")]
+    [SerializeField] private float _smoothSpeed = 5f;
+
+    private float _minX;
+    private float _maxX;
+    private float _minY;
+    private float _maxY;
+    private bool _isSetup;
 
     public void Setup(BoardManager board)
     {
@@ -22,38 +28,48 @@ public class CameraFollow : MonoBehaviour
 
         float halfCell = 0.5f;
 
-        m_MinX = bottomLeft.x - halfCell + halfWidth;
-        m_MaxX = topRight.x + halfCell - halfWidth;
-        m_MinY = bottomLeft.y - halfCell + halfHeight;
-        m_MaxY = topRight.y + halfCell - halfHeight;
+        _minX = bottomLeft.x - halfCell + halfWidth;
+        _maxX = topRight.x + halfCell - halfWidth;
+        _minY = bottomLeft.y - halfCell + halfHeight;
+        _maxY = topRight.y + halfCell - halfHeight;
 
-        m_IsSetup = true;
+        _isSetup = true;
     }
 
     public void SetTarget(Transform target)
     {
-        Target = target;
+        _target = target;
     }
 
     private void LateUpdate()
     {
-        if (!m_IsSetup || Target == null)
+        if (!_isSetup || _target == null)
+        {
             return;
+        }
 
-        float targetX = Target.position.x;
-        float targetY = Target.position.y;
+        float targetX = _target.position.x;
+        float targetY = _target.position.y;
 
-        if (m_MinX > m_MaxX)
-            targetX = (m_MinX + m_MaxX) / 2f;
+        if (_minX > _maxX)
+        {
+            targetX = (_minX + _maxX) / 2f;
+        }
         else
-            targetX = Mathf.Clamp(targetX, m_MinX, m_MaxX);
+        {
+            targetX = Mathf.Clamp(targetX, _minX, _maxX);
+        }
 
-        if (m_MinY > m_MaxY)
-            targetY = (m_MinY + m_MaxY) / 2f;
+        if (_minY > _maxY)
+        {
+            targetY = (_minY + _maxY) / 2f;
+        }
         else
-            targetY = Mathf.Clamp(targetY, m_MinY, m_MaxY);
+        {
+            targetY = Mathf.Clamp(targetY, _minY, _maxY);
+        }
 
         Vector3 desired = new Vector3(targetX, targetY, transform.position.z);
-        transform.position = Vector3.Lerp(transform.position, desired, SmoothSpeed * Time.deltaTime);
+        transform.position = Vector3.Lerp(transform.position, desired, _smoothSpeed * Time.deltaTime);
     }
 }

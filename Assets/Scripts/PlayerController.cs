@@ -1,140 +1,151 @@
+// Copyright (c) 2003-2026 Autism Group. All Rights Reserved.
+
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
 
 public class PlayerController : MonoBehaviour
 {
-    private BoardManager m_Board;
-    private Vector2Int m_CellPosition;
-    private bool m_IsGameOver;
-
-    private Animator m_Animator;
-    private SpriteRenderer m_SpriteRenderer;
-
-    private bool m_IsMoving;
-    private Vector3 m_MoveTarget;
-
-    public float MoveSpeed = 1f;
-    public AudioClip[] FootstepSounds;
-    public AudioClip AttackSound;
-
     private static readonly int MovingHash = Animator.StringToHash("Moving");
     private static readonly int AttackHash = Animator.StringToHash("Attack");
 
-    public Vector2Int Cell => m_CellPosition;
+    [FormerlySerializedAs("MoveSpeed")]
+    [SerializeField] private float _moveSpeed = 1f;
+
+    [FormerlySerializedAs("FootstepSounds")]
+    [SerializeField] private AudioClip[] _footstepSounds;
+
+    [FormerlySerializedAs("AttackSound")]
+    [SerializeField] private AudioClip _attackSound;
+
+    private BoardManager _board;
+    private Vector2Int _cellPosition;
+    private bool _isGameOver;
+    private Animator _animator;
+    private SpriteRenderer _spriteRenderer;
+    private bool _isMoving;
+    private Vector3 _moveTarget;
+
+    public Vector2Int Cell => _cellPosition;
 
     private void Awake()
     {
-        m_Animator = GetComponent<Animator>();
-        m_SpriteRenderer = GetComponent<SpriteRenderer>();
+        _animator = GetComponent<Animator>();
+        _spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
     public void Init()
     {
-        m_IsGameOver = false;
-        m_IsMoving = false;
+        _isGameOver = false;
+        _isMoving = false;
 
-        if (m_Animator != null)
-            m_Animator.SetBool(MovingHash, false);
+        if (_animator != null)
+        {
+            _animator.SetBool(MovingHash, false);
+        }
     }
 
     public void GameOver()
     {
-        m_IsGameOver = true;
-        m_IsMoving = false;
+        _isGameOver = true;
+        _isMoving = false;
 
-        if (m_Animator != null)
-            m_Animator.SetBool(MovingHash, false);
+        if (_animator != null)
+        {
+            _animator.SetBool(MovingHash, false);
+        }
     }
 
     public void Spawn(BoardManager boardManager, Vector2Int cell)
     {
-        m_Board = boardManager;
-        m_CellPosition = cell;
-        m_IsMoving = false;
+        _board = boardManager;
+        _cellPosition = cell;
+        _isMoving = false;
 
-        transform.position = m_Board.CellToWorld(m_CellPosition);
+        transform.position = _board.CellToWorld(_cellPosition);
 
-        if (m_Animator != null)
-            m_Animator.SetBool(MovingHash, false);
+        if (_animator != null)
+        {
+            _animator.SetBool(MovingHash, false);
+        }
     }
 
     public void MoveTo(Vector2Int cell)
     {
-        m_CellPosition = cell;
-        m_MoveTarget = m_Board.CellToWorld(m_CellPosition);
-        m_IsMoving = true;
+        _cellPosition = cell;
+        _moveTarget = _board.CellToWorld(_cellPosition);
+        _isMoving = true;
 
         PlayFootstep();
 
-        if (m_Animator != null)
-            m_Animator.SetBool(MovingHash, true);
+        if (_animator != null)
+        {
+            _animator.SetBool(MovingHash, true);
+        }
     }
 
     public void PlayAttack()
     {
-        if (m_Animator != null)
-            m_Animator.SetTrigger(AttackHash);
+        if (_animator != null)
+        {
+            _animator.SetTrigger(AttackHash);
+        }
 
-        if (AudioManager.Instance != null && AttackSound != null)
-            AudioManager.Instance.SFXSource.PlayOneShot(AttackSound, 2f);
-    }
-
-    void PlayFootstep()
-    {
-        if (AudioManager.Instance == null || FootstepSounds == null || FootstepSounds.Length == 0)
-            return;
-
-        int index = Random.Range(0, FootstepSounds.Length);
-        AudioManager.Instance.SFXSource.PlayOneShot(FootstepSounds[index], 2f);
+        if (AudioManager.Instance != null && _attackSound != null)
+        {
+            AudioManager.Instance.SFXSource.PlayOneShot(_attackSound, 2f);
+        }
     }
 
     private void Update()
     {
-        if (m_Board == null)
-            return;
-
-        if (m_IsGameOver)
+        if (_board == null)
         {
-            if (Keyboard.current != null &&
-                Keyboard.current.enterKey.wasPressedThisFrame)
-            {
-                GameManager.Instance.StartNewGame();
-            }
             return;
         }
 
-        if (m_IsMoving)
+        if (_isGameOver)
         {
-            transform.position = Vector3.MoveTowards(
-                transform.position,
-                m_MoveTarget,
-                MoveSpeed * Time.deltaTime
-            );
-
-            if (transform.position == m_MoveTarget)
+            if (Keyboard.current != null && Keyboard.current.enterKey.wasPressedThisFrame)
             {
-                m_IsMoving = false;
+                GameManager.Instance.StartNewGame();
+            }
 
-                if (m_Animator != null)
-                    m_Animator.SetBool(MovingHash, false);
+            return;
+        }
 
-                // Сначала — объект на клетке (еда, выход)
-                BoardManager.CellData cellData =
-                    m_Board.GetCellData(m_CellPosition);
+        if (_isMoving)
+        {
+            transform.position = Vector3.MoveTowards(transform.position, _moveTarget, _moveSpeed * Time.deltaTime);
+
+            if (transform.position == _moveTarget)
+            {
+                _isMoving = false;
+
+                if (_animator != null)
+                {
+                    _animator.SetBool(MovingHash, false);
+                }
+
+                BoardManager.CellData cellData = _board.GetCellData(_cellPosition);
 
                 if (cellData != null && cellData.ContainedObject != null)
+                {
                     cellData.ContainedObject.PlayerEntered();
+                }
 
-                // Потом — ход (голод, враги)
                 GameManager.Instance.TurnManager.Tick();
             }
+
             return;
         }
 
         if (Keyboard.current == null)
+        {
             return;
+        }
 
-        Vector2Int newCellTarget = m_CellPosition;
+        Vector2Int newCellTarget = _cellPosition;
         bool hasMoved = false;
 
         if (Keyboard.current.upArrowKey.wasPressedThisFrame)
@@ -160,36 +171,52 @@ public class PlayerController : MonoBehaviour
             FlipSprite(true);
         }
 
-        if (hasMoved)
+        if (!hasMoved)
         {
-            BoardManager.CellData cellData =
-                m_Board.GetCellData(newCellTarget);
+            return;
+        }
 
-            if (cellData != null)
+        BoardManager.CellData targetCellData = _board.GetCellData(newCellTarget);
+
+        if (targetCellData == null)
+        {
+            return;
+        }
+
+        if (targetCellData.ContainedObject != null)
+        {
+            if (targetCellData.ContainedObject.PlayerWantsToEnter())
             {
-                if (cellData.ContainedObject != null)
-                {
-                    if (cellData.ContainedObject.PlayerWantsToEnter())
-                    {
-                        MoveTo(newCellTarget);
-                    }
-                    else if (cellData.ContainedObject.IsAttackable)
-                    {
-                        PlayAttack();
-                        GameManager.Instance.TurnManager.Tick();
-                    }
-                }
-                else if (cellData.Passable)
-                {
-                    MoveTo(newCellTarget);
-                }
+                MoveTo(newCellTarget);
             }
+            else if (targetCellData.ContainedObject.IsAttackable)
+            {
+                PlayAttack();
+                GameManager.Instance.TurnManager.Tick();
+            }
+        }
+        else if (targetCellData.Passable)
+        {
+            MoveTo(newCellTarget);
         }
     }
 
-    void FlipSprite(bool flip)
+    private void PlayFootstep()
     {
-        if (m_SpriteRenderer != null)
-            m_SpriteRenderer.flipX = flip;
+        if (AudioManager.Instance == null || _footstepSounds == null || _footstepSounds.Length == 0)
+        {
+            return;
+        }
+
+        int index = Random.Range(0, _footstepSounds.Length);
+        AudioManager.Instance.SFXSource.PlayOneShot(_footstepSounds[index], 2f);
+    }
+
+    private void FlipSprite(bool flip)
+    {
+        if (_spriteRenderer != null)
+        {
+            _spriteRenderer.flipX = flip;
+        }
     }
 }

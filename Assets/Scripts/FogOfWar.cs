@@ -1,54 +1,80 @@
+// Copyright (c) 2003-2026 Autism Group. All Rights Reserved.
+
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using UnityEngine.Serialization;
 
 public class FogOfWar : MonoBehaviour
 {
-    public Tilemap FogTilemap;
-    public TileBase FogTile;
-    public int VisionRadius = 3;
-    public int SoftEdge = 3;
+    [FormerlySerializedAs("FogTilemap")]
+    [SerializeField] private Tilemap _fogTilemap;
 
-    private BoardManager m_Board;
-    private Vector2Int m_LastPlayerCell = new Vector2Int(-999, -999);
+    [FormerlySerializedAs("FogTile")]
+    [SerializeField] private TileBase _fogTile;
+
+    [FormerlySerializedAs("VisionRadius")]
+    [SerializeField] private int _visionRadius = 3;
+
+    [FormerlySerializedAs("SoftEdge")]
+    [SerializeField] private int _softEdge = 3;
+
+    private BoardManager _board;
+    private Vector2Int _lastPlayerCell = new Vector2Int(-999, -999);
 
     public void Setup(BoardManager board)
     {
-        m_Board = board;
+        _board = board;
 
         if (GameManager.Instance != null && GameManager.Instance.PlayerController != null)
         {
-            m_LastPlayerCell = GameManager.Instance.PlayerController.Cell;
-            RefreshFog(m_LastPlayerCell);
+            _lastPlayerCell = GameManager.Instance.PlayerController.Cell;
+            RefreshFog(_lastPlayerCell);
         }
     }
 
     private void LateUpdate()
     {
-        if (m_Board == null) return;
-        if (GameManager.Instance == null) return;
-        if (GameManager.Instance.PlayerController == null) return;
-        if (FogTilemap == null || FogTile == null) return;
+        if (_board == null)
+        {
+            return;
+        }
+
+        if (GameManager.Instance == null)
+        {
+            return;
+        }
+
+        if (GameManager.Instance.PlayerController == null)
+        {
+            return;
+        }
+
+        if (_fogTilemap == null || _fogTile == null)
+        {
+            return;
+        }
 
         Vector2Int playerCell = GameManager.Instance.PlayerController.Cell;
 
-        if (playerCell != m_LastPlayerCell)
+        if (playerCell != _lastPlayerCell)
         {
-            m_LastPlayerCell = playerCell;
+            _lastPlayerCell = playerCell;
             RefreshFog(playerCell);
         }
     }
 
-    void RefreshFog(Vector2Int playerCell)
+    private void RefreshFog(Vector2Int playerCell)
     {
-        if (FogTilemap == null || FogTile == null || m_Board == null)
-            return;
-
-        float fullRadius = VisionRadius;
-        float fadeEnd = VisionRadius + SoftEdge;
-
-        for (int y = 0; y < m_Board.Height; y++)
+        if (_fogTilemap == null || _fogTile == null || _board == null)
         {
-            for (int x = 0; x < m_Board.Width; x++)
+            return;
+        }
+
+        float fullRadius = _visionRadius;
+
+        for (int y = 0; y < _board.Height; y++)
+        {
+            for (int x = 0; x < _board.Width; x++)
             {
                 Vector3Int tilePos = new Vector3Int(x, y, 0);
 
@@ -58,15 +84,15 @@ public class FogOfWar : MonoBehaviour
 
                 if (dist <= fullRadius)
                 {
-                    FogTilemap.SetTile(tilePos, null);
+                    _fogTilemap.SetTile(tilePos, null);
                 }
                 else
                 {
-                    float t = Mathf.Clamp01((dist - fullRadius) / SoftEdge);
+                    float t = Mathf.Clamp01((dist - fullRadius) / _softEdge);
                     float alpha = Mathf.Lerp(0f, 1f, t);
 
-                    FogTilemap.SetTile(tilePos, FogTile);
-                    FogTilemap.SetColor(tilePos, new Color(0, 0, 0, alpha));
+                    _fogTilemap.SetTile(tilePos, _fogTile);
+                    _fogTilemap.SetColor(tilePos, new Color(0, 0, 0, alpha));
                 }
             }
         }

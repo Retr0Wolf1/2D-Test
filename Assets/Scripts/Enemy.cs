@@ -1,75 +1,123 @@
+// Copyright (c) 2003-2026 Autism Group. All Rights Reserved.
+
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class Enemy : CellObject
 {
-    public int Health = 3;
-    public float MoveSpeed = 3f;
-    public float MoveInterval = 1f;
-    public float RandomChance = 0.3f;
-    public int AttackDamage = 3;
+    private static readonly int AttackHash = Animator.StringToHash("Attack");
 
-    public bool SpriteFacesRight = true;
-    public EnemyHealthBar HealthBarPrefab;
-    public AudioClip[] FootstepSounds;
-    public AudioClip AttackSound;
+    public static int AliveCount;
 
-    public static int AliveCount = 0;
+    [FormerlySerializedAs("Health")]
+    [SerializeField] private int _health = 3;
+
+    [FormerlySerializedAs("MoveSpeed")]
+    [SerializeField] private float _moveSpeed = 3f;
+
+    [FormerlySerializedAs("MoveInterval")]
+    [SerializeField] private float _moveInterval = 1f;
+
+    [FormerlySerializedAs("RandomChance")]
+    [SerializeField] private float _randomChance = 0.3f;
+
+    [FormerlySerializedAs("AttackDamage")]
+    [SerializeField] private int _attackDamage = 3;
+
+    [FormerlySerializedAs("SpriteFacesRight")]
+    [SerializeField] private bool _spriteFacesRight = true;
+
+    [FormerlySerializedAs("HealthBarPrefab")]
+    [SerializeField] private EnemyHealthBar _healthBarPrefab;
+
+    [FormerlySerializedAs("FootstepSounds")]
+    [SerializeField] private AudioClip[] _footstepSounds;
+
+    [FormerlySerializedAs("AttackSound")]
+    [SerializeField] private AudioClip _attackSound;
+
+    private int _currentHealth;
+    private bool _isMoving;
+    private Vector3 _moveTarget;
+    private float _moveTimer;
+    private Animator _animator;
+    private Vector3 _originalScale;
+    private EnemyHealthBar _healthBar;
 
     public static void ResetAliveCount()
     {
         AliveCount = 0;
     }
 
-    private int m_CurrentHealth;
-    private bool m_IsMoving;
-    private Vector3 m_MoveTarget;
-    private float m_MoveTimer;
-
-    private Animator m_Animator;
-    private Vector3 m_OriginalScale;
-    private EnemyHealthBar m_HealthBar;
-
-    private static readonly int AttackHash = Animator.StringToHash("Attack");
-
     private void Awake()
     {
-        m_Animator = GetComponent<Animator>();
-        m_OriginalScale = transform.localScale;
+        _animator = GetComponent<Animator>();
+        _originalScale = transform.localScale;
+    }
+
+    private void Update()
+    {
+        if (_isMoving)
+        {
+            transform.position = Vector3.MoveTowards(transform.position, _moveTarget, _moveSpeed * Time.deltaTime);
+
+            if (transform.position == _moveTarget)
+            {
+                _isMoving = false;
+            }
+
+            return;
+        }
+
+        _moveTimer += Time.deltaTime;
+
+        if (_moveTimer >= _moveInterval)
+        {
+            _moveTimer = 0f;
+            TurnHappened();
+        }
     }
 
     public override void Init(Vector2Int coord)
     {
         base.Init(coord);
-        m_CurrentHealth = Health;
-        m_IsMoving = false;
-        m_MoveTimer = 0f;
+
+        _currentHealth = _health;
+        _isMoving = false;
+        _moveTimer = 0f;
 
         AliveCount++;
 
-        if (HealthBarPrefab != null)
+        if (_healthBarPrefab != null)
         {
-            m_HealthBar = Instantiate(HealthBarPrefab);
-            m_HealthBar.Setup(transform, Camera.main);
-            m_HealthBar.SetHealth(m_CurrentHealth, Health);
+            _healthBar = Instantiate(_healthBarPrefab);
+            _healthBar.Setup(transform, Camera.main);
+            _healthBar.SetHealth(_currentHealth, _health);
         }
     }
 
     public override bool PlayerWantsToEnter()
     {
-        m_CurrentHealth -= 1;
+        _currentHealth -= 1;
 
-        if (m_HealthBar != null)
-            m_HealthBar.SetHealth(m_CurrentHealth, Health);
-
-        if (m_CurrentHealth <= 0)
+        if (_healthBar != null)
         {
-            if (m_HealthBar != null)
-                Destroy(m_HealthBar.gameObject);
+            _healthBar.SetHealth(_currentHealth, _health);
+        }
+
+        if (_currentHealth <= 0)
+        {
+            if (_healthBar != null)
+            {
+                Destroy(_healthBar.gameObject);
+            }
 
             AliveCount--;
 
             if (AliveCount <= 0)
+            {
                 GameManager.Instance.BoardManager.OnAllEnemiesDead();
+            }
 
             Destroy(gameObject);
         }
@@ -77,93 +125,41 @@ public class Enemy : CellObject
         return false;
     }
 
-    bool MoveTo(Vector2Int coord)
+    private bool MoveTo(Vector2Int coord)
     {
-        var board = GameManager.Instance.BoardManager;
-        var targetCell = board.GetCellData(coord);
+        BoardManager board = GameManager.Instance.BoardManager;
+        BoardManager.CellData targetCell = board.GetCellData(coord);
 
-        if (targetCell == null
-            || !targetCell.Passable
-            || targetCell.ContainedObject != null)
+        if (targetCell == null || !targetCell.Passable || targetCell.ContainedObject != null)
         {
             return false;
         }
 
-        if (coord.x > m_Cell.x)
+        if (coord.x > _cell.x)
+        {
             FaceDirection(true);
-        else if (coord.x < m_Cell.x)
+        }
+        else if (coord.x < _cell.x)
+        {
             FaceDirection(false);
+        }
 
-        var currentCell = board.GetCellData(m_Cell);
+        BoardManager.CellData currentCell = board.GetCellData(_cell);
         currentCell.ContainedObject = null;
 
         targetCell.ContainedObject = this;
-        m_Cell = coord;
-        m_MoveTarget = board.CellToWorld(coord);
-        m_IsMoving = true;
+        _cell = coord;
+        _moveTarget = board.CellToWorld(coord);
+        _isMoving = true;
 
         PlayFootstep();
 
         return true;
     }
 
-    void PlayFootstep()
+    private void TurnHappened()
     {
-        if (AudioManager.Instance == null || FootstepSounds == null || FootstepSounds.Length == 0)
-            return;
-
-        int index = Random.Range(0, FootstepSounds.Length);
-        AudioManager.Instance.SFXSource.PlayOneShot(FootstepSounds[index], 1.5f);
-    }
-
-    void FaceDirection(bool faceRight)
-    {
-        float absX = Mathf.Abs(m_OriginalScale.x);
-
-        if (SpriteFacesRight)
-        {
-            if (faceRight)
-                transform.localScale = new Vector3(-absX, m_OriginalScale.y, m_OriginalScale.z);
-            else
-                transform.localScale = new Vector3(absX, m_OriginalScale.y, m_OriginalScale.z);
-        }
-        else
-        {
-            if (faceRight)
-                transform.localScale = new Vector3(absX, m_OriginalScale.y, m_OriginalScale.z);
-            else
-                transform.localScale = new Vector3(-absX, m_OriginalScale.y, m_OriginalScale.z);
-        }
-    }
-
-    void Update()
-    {
-        if (m_IsMoving)
-        {
-            transform.position = Vector3.MoveTowards(
-                transform.position,
-                m_MoveTarget,
-                MoveSpeed * Time.deltaTime
-            );
-
-            if (transform.position == m_MoveTarget)
-            {
-                m_IsMoving = false;
-            }
-            return;
-        }
-
-        m_MoveTimer += Time.deltaTime;
-        if (m_MoveTimer >= MoveInterval)
-        {
-            m_MoveTimer = 0f;
-            TurnHappened();
-        }
-    }
-
-    void TurnHappened()
-    {
-        if (Random.value < RandomChance)
+        if (Random.value < _randomChance)
         {
             RandomMove();
             return;
@@ -172,7 +168,7 @@ public class Enemy : CellObject
         ChasePlayer();
     }
 
-    void RandomMove()
+    private void RandomMove()
     {
         Vector2Int[] directions =
         {
@@ -188,26 +184,24 @@ public class Enemy : CellObject
         {
             Vector2Int dir = directions[(startIndex + i) % directions.Length];
 
-            if (MoveTo(m_Cell + dir))
+            if (MoveTo(_cell + dir))
             {
                 return;
             }
         }
     }
 
-    void ChasePlayer()
+    private void ChasePlayer()
     {
-        var playerCell = GameManager.Instance.PlayerController.Cell;
+        Vector2Int playerCell = GameManager.Instance.PlayerController.Cell;
 
-        int xDist = playerCell.x - m_Cell.x;
-        int yDist = playerCell.y - m_Cell.y;
+        int xDist = playerCell.x - _cell.x;
+        int yDist = playerCell.y - _cell.y;
 
         int absXDist = Mathf.Abs(xDist);
         int absYDist = Mathf.Abs(yDist);
 
-        bool isAdjacent =
-            (xDist == 0 && absYDist == 1) ||
-            (yDist == 0 && absXDist == 1);
+        bool isAdjacent = (xDist == 0 && absYDist == 1) || (yDist == 0 && absXDist == 1);
 
         if (isAdjacent)
         {
@@ -232,28 +226,77 @@ public class Enemy : CellObject
         }
     }
 
-    void AttackPlayer()
+    private void AttackPlayer()
     {
-        if (m_Animator != null)
-            m_Animator.SetTrigger(AttackHash);
+        if (_animator != null)
+        {
+            _animator.SetTrigger(AttackHash);
+        }
 
-        if (AudioManager.Instance != null && AttackSound != null)
-            AudioManager.Instance.SFXSource.PlayOneShot(AttackSound, 2f);
+        if (AudioManager.Instance != null && _attackSound != null)
+        {
+            AudioManager.Instance.SFXSource.PlayOneShot(_attackSound, 2f);
+        }
 
-        GameManager.Instance.ChangeFood(-AttackDamage);
+        GameManager.Instance.ChangeFood(-_attackDamage);
     }
 
-    bool TryMoveInX(int xDist)
+    private bool TryMoveInX(int xDist)
     {
         if (xDist > 0)
-            return MoveTo(m_Cell + Vector2Int.right);
-        return MoveTo(m_Cell + Vector2Int.left);
+        {
+            return MoveTo(_cell + Vector2Int.right);
+        }
+
+        return MoveTo(_cell + Vector2Int.left);
     }
 
-    bool TryMoveInY(int yDist)
+    private bool TryMoveInY(int yDist)
     {
         if (yDist > 0)
-            return MoveTo(m_Cell + Vector2Int.up);
-        return MoveTo(m_Cell + Vector2Int.down);
+        {
+            return MoveTo(_cell + Vector2Int.up);
+        }
+
+        return MoveTo(_cell + Vector2Int.down);
+    }
+
+    private void PlayFootstep()
+    {
+        if (AudioManager.Instance == null || _footstepSounds == null || _footstepSounds.Length == 0)
+        {
+            return;
+        }
+
+        int index = Random.Range(0, _footstepSounds.Length);
+        AudioManager.Instance.SFXSource.PlayOneShot(_footstepSounds[index], 1.5f);
+    }
+
+    private void FaceDirection(bool faceRight)
+    {
+        float absX = Mathf.Abs(_originalScale.x);
+
+        if (_spriteFacesRight)
+        {
+            if (faceRight)
+            {
+                transform.localScale = new Vector3(-absX, _originalScale.y, _originalScale.z);
+            }
+            else
+            {
+                transform.localScale = new Vector3(absX, _originalScale.y, _originalScale.z);
+            }
+        }
+        else
+        {
+            if (faceRight)
+            {
+                transform.localScale = new Vector3(absX, _originalScale.y, _originalScale.z);
+            }
+            else
+            {
+                transform.localScale = new Vector3(-absX, _originalScale.y, _originalScale.z);
+            }
+        }
     }
 }

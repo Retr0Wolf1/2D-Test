@@ -1,19 +1,22 @@
+// Copyright (c) 2003-2026 Autism Group. All Rights Reserved.
+
 using UnityEngine;
 
 public class TurnManager
 {
-    private int m_TurnCount;
+    private int _turnCount;
+
     public event System.Action OnTick;
 
     public TurnManager()
     {
-        m_TurnCount = 1;
+        _turnCount = 1;
     }
 
     public void Tick()
     {
-        m_TurnCount += 1;
-        Debug.Log("Current turn count : " + m_TurnCount);
+        _turnCount += 1;
+        Debug.Log("Current turn count : " + _turnCount);
         OnTick?.Invoke();
     }
 }

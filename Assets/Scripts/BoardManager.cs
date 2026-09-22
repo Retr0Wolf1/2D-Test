@@ -1,6 +1,9 @@
+// Copyright (c) 2003-2026 Autism Group. All Rights Reserved.
+
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
-using System.Collections.Generic;
+using UnityEngine.Serialization;
 
 public class BoardManager : MonoBehaviour
 {
@@ -10,75 +13,107 @@ public class BoardManager : MonoBehaviour
         public CellObject ContainedObject;
     }
 
-    private CellData[,] m_BoardData;
-    private Tilemap m_Tilemap;
-    private Grid m_Grid;
-    private List<Vector2Int> m_EmptyCellsList;
+    [FormerlySerializedAs("Width")]
+    [SerializeField] private int _width;
 
-    public int Width;
-    public int Height;
-    public Tile[] GroundTiles;
-    public Tile[] WallTiles;
+    [FormerlySerializedAs("Height")]
+    [SerializeField] private int _height;
 
-    public FoodObject[] FoodPrefabs;
-    public WallObject[] WallPrefabs;
-    public ExitCellObject ExitCellPrefab;
-    public Enemy EnemyPrefab;
+    [FormerlySerializedAs("GroundTiles")]
+    [SerializeField] private Tile[] _groundTiles;
 
-    public int MinFood = 3;
-    public int MaxFood = 8;
-    public int MinEnemies = 2;
-    public int MaxEnemies = 4;
+    [FormerlySerializedAs("WallTiles")]
+    [SerializeField] private Tile[] _wallTiles;
 
-    public int Seed = 0;
-    private System.Random m_Rng;
+    [FormerlySerializedAs("FoodPrefabs")]
+    [SerializeField] private FoodObject[] _foodPrefabs;
 
-    private ExitCellObject m_ExitCell;
+    [FormerlySerializedAs("WallPrefabs")]
+    [SerializeField] private WallObject[] _wallPrefabs;
+
+    [FormerlySerializedAs("ExitCellPrefab")]
+    [SerializeField] private ExitCellObject _exitCellPrefab;
+
+    [FormerlySerializedAs("EnemyPrefab")]
+    [SerializeField] private Enemy _enemyPrefab;
+
+    [FormerlySerializedAs("MinFood")]
+    [SerializeField] private int _minFood = 3;
+
+    [FormerlySerializedAs("MaxFood")]
+    [SerializeField] private int _maxFood = 8;
+
+    [FormerlySerializedAs("MinEnemies")]
+    [SerializeField] private int _minEnemies = 2;
+
+    [FormerlySerializedAs("MaxEnemies")]
+    [SerializeField] private int _maxEnemies = 4;
+
+    [FormerlySerializedAs("Seed")]
+    [SerializeField] private int _seed;
+
+    private CellData[,] _boardData;
+    private Tilemap _tilemap;
+    private Grid _grid;
+    private List<Vector2Int> _emptyCellsList;
+    private System.Random _rng;
+    private ExitCellObject _exitCell;
+
+    public int Width => _width;
+    public int Height => _height;
+
+    public int Seed
+    {
+        get => _seed;
+        set => _seed = value;
+    }
 
     public void Init()
     {
-        if (Seed == 0)
-            Seed = UnityEngine.Random.Range(1, 999999);
+        if (_seed == 0)
+        {
+            _seed = UnityEngine.Random.Range(1, 999999);
+        }
 
-        m_Rng = new System.Random(Seed);
+        _rng = new System.Random(_seed);
 
         Enemy.ResetAliveCount();
 
-        m_Tilemap = GetComponentInChildren<Tilemap>();
-        m_Grid = GetComponentInChildren<Grid>();
-        m_EmptyCellsList = new List<Vector2Int>();
+        _tilemap = GetComponentInChildren<Tilemap>();
+        _grid = GetComponentInChildren<Grid>();
+        _emptyCellsList = new List<Vector2Int>();
 
-        m_BoardData = new CellData[Width, Height];
+        _boardData = new CellData[_width, _height];
 
-        for (int y = 0; y < Height; ++y)
+        for (int y = 0; y < _height; ++y)
         {
-            for (int x = 0; x < Width; ++x)
+            for (int x = 0; x < _width; ++x)
             {
                 Tile tile;
-                m_BoardData[x, y] = new CellData();
+                _boardData[x, y] = new CellData();
 
-                if (x == 0 || y == 0 || x == Width - 1 || y == Height - 1)
+                if (x == 0 || y == 0 || x == _width - 1 || y == _height - 1)
                 {
-                    tile = WallTiles[m_Rng.Next(0, WallTiles.Length)];
-                    m_BoardData[x, y].Passable = false;
+                    tile = _wallTiles[_rng.Next(0, _wallTiles.Length)];
+                    _boardData[x, y].Passable = false;
                 }
                 else
                 {
-                    tile = GroundTiles[m_Rng.Next(0, GroundTiles.Length)];
-                    m_BoardData[x, y].Passable = true;
-                    m_EmptyCellsList.Add(new Vector2Int(x, y));
+                    tile = _groundTiles[_rng.Next(0, _groundTiles.Length)];
+                    _boardData[x, y].Passable = true;
+                    _emptyCellsList.Add(new Vector2Int(x, y));
                 }
 
-                m_Tilemap.SetTile(new Vector3Int(x, y, 0), tile);
+                _tilemap.SetTile(new Vector3Int(x, y, 0), tile);
             }
         }
 
-        m_EmptyCellsList.Remove(new Vector2Int(1, 1));
+        _emptyCellsList.Remove(new Vector2Int(1, 1));
 
-        Vector2Int endCoord = new Vector2Int(Width - 2, Height - 2);
-        m_ExitCell = Instantiate(ExitCellPrefab);
-        AddObject(m_ExitCell, endCoord);
-        m_EmptyCellsList.Remove(endCoord);
+        Vector2Int endCoord = new Vector2Int(_width - 2, _height - 2);
+        _exitCell = Instantiate(_exitCellPrefab);
+        AddObject(_exitCell, endCoord);
+        _emptyCellsList.Remove(endCoord);
 
         GenerateWall();
         GenerateFood();
@@ -88,143 +123,167 @@ public class BoardManager : MonoBehaviour
         SetupFog();
     }
 
-    void SetupCamera()
-    {
-        if (Camera.main == null) return;
-
-        CameraFollow follow = Camera.main.GetComponent<CameraFollow>();
-        if (follow == null) return;
-
-        follow.Setup(this);
-
-        if (GameManager.Instance != null && GameManager.Instance.PlayerController != null)
-            follow.SetTarget(GameManager.Instance.PlayerController.transform);
-    }
-
-    void SetupFog()
-    {
-        FogOfWar fog = FindAnyObjectByType<FogOfWar>();
-        if (fog != null)
-            fog.Setup(this);
-    }
-
-    public void OnAllEnemiesDead()
-    {
-        if (m_ExitCell != null)
-            m_ExitCell.Open();
-
-        UIManager.Instance.ShowGoToExit();
-    }   
-
     public void Clean()
     {
-        if (m_BoardData == null) return;
-
-        for (int y = 0; y < Height; ++y)
+        if (_boardData == null)
         {
-            for (int x = 0; x < Width; ++x)
+            return;
+        }
+
+        for (int y = 0; y < _height; ++y)
+        {
+            for (int x = 0; x < _width; ++x)
             {
-                var cellData = m_BoardData[x, y];
+                CellData cellData = _boardData[x, y];
 
                 if (cellData.ContainedObject != null)
+                {
                     Destroy(cellData.ContainedObject.gameObject);
+                }
 
                 SetCellTile(new Vector2Int(x, y), null);
             }
         }
     }
 
-    void GenerateWall()
+    public void OnAllEnemiesDead()
     {
-        int totalCells = Width * Height;
+        if (_exitCell != null)
+        {
+            _exitCell.Open();
+        }
+
+        UIManager.Instance.ShowGoToExit();
+    }
+
+    public Vector3 CellToWorld(Vector2Int cellIndex)
+    {
+        return _grid.GetCellCenterWorld((Vector3Int)cellIndex);
+    }
+
+    public CellData GetCellData(Vector2Int cellIndex)
+    {
+        if (cellIndex.x < 0 || cellIndex.x >= _width ||
+            cellIndex.y < 0 || cellIndex.y >= _height)
+        {
+            return null;
+        }
+
+        return _boardData[cellIndex.x, cellIndex.y];
+    }
+
+    public void SetCellTile(Vector2Int cellIndex, Tile tile)
+    {
+        _tilemap.SetTile(new Vector3Int(cellIndex.x, cellIndex.y, 0), tile);
+    }
+
+    public Tile GetCellTile(Vector2Int cellIndex)
+    {
+        return _tilemap.GetTile<Tile>(new Vector3Int(cellIndex.x, cellIndex.y, 0));
+    }
+
+    private void SetupCamera()
+    {
+        if (Camera.main == null)
+        {
+            return;
+        }
+
+        CameraFollow follow = Camera.main.GetComponent<CameraFollow>();
+
+        if (follow == null)
+        {
+            return;
+        }
+
+        follow.Setup(this);
+
+        if (GameManager.Instance != null && GameManager.Instance.PlayerController != null)
+        {
+            follow.SetTarget(GameManager.Instance.PlayerController.transform);
+        }
+    }
+
+    private void SetupFog()
+    {
+        FogOfWar fog = FindAnyObjectByType<FogOfWar>();
+
+        if (fog != null)
+        {
+            fog.Setup(this);
+        }
+    }
+
+    private void GenerateWall()
+    {
+        int totalCells = _width * _height;
         int minWalls = Mathf.RoundToInt(totalCells * 0.05f);
         int maxWalls = Mathf.RoundToInt(totalCells * 0.10f);
 
-        int wallCount = m_Rng.Next(minWalls, maxWalls + 1);
+        int wallCount = _rng.Next(minWalls, maxWalls + 1);
 
         for (int i = 0; i < wallCount; ++i)
         {
-            if (m_EmptyCellsList.Count == 0) break;
+            if (_emptyCellsList.Count == 0)
+            {
+                break;
+            }
 
-            int randomIndex = m_Rng.Next(0, m_EmptyCellsList.Count);
-            Vector2Int coord = m_EmptyCellsList[randomIndex];
+            int randomIndex = _rng.Next(0, _emptyCellsList.Count);
+            Vector2Int coord = _emptyCellsList[randomIndex];
 
-            m_EmptyCellsList.RemoveAt(randomIndex);
+            _emptyCellsList.RemoveAt(randomIndex);
 
-            int wallIndex = m_Rng.Next(0, WallPrefabs.Length);
-            WallObject newWall = Instantiate(WallPrefabs[wallIndex]);
+            int wallIndex = _rng.Next(0, _wallPrefabs.Length);
+            WallObject newWall = Instantiate(_wallPrefabs[wallIndex]);
             AddObject(newWall, coord);
         }
     }
 
-    void GenerateFood()
+    private void GenerateFood()
     {
-        int foodCount = m_Rng.Next(MinFood, MaxFood + 1);
+        int foodCount = _rng.Next(_minFood, _maxFood + 1);
 
         for (int i = 0; i < foodCount; ++i)
         {
-            int randomIndex = m_Rng.Next(0, m_EmptyCellsList.Count);
-            Vector2Int coord = m_EmptyCellsList[randomIndex];
+            int randomIndex = _rng.Next(0, _emptyCellsList.Count);
+            Vector2Int coord = _emptyCellsList[randomIndex];
 
-            m_EmptyCellsList.RemoveAt(randomIndex);
-            int prefabIndex = m_Rng.Next(0, FoodPrefabs.Length);
-            FoodObject newFood = Instantiate(FoodPrefabs[prefabIndex]);
+            _emptyCellsList.RemoveAt(randomIndex);
+            int prefabIndex = _rng.Next(0, _foodPrefabs.Length);
+            FoodObject newFood = Instantiate(_foodPrefabs[prefabIndex]);
             AddObject(newFood, coord);
         }
     }
 
-    void GenerateEnemies()
+    private void GenerateEnemies()
     {
-        if (EnemyPrefab == null)
+        if (_enemyPrefab == null)
         {
             Debug.LogWarning("EnemyPrefab не назначен!");
             return;
         }
 
-        int enemyCount = m_Rng.Next(MinEnemies, MaxEnemies + 1);
-        enemyCount = Mathf.Min(enemyCount, m_EmptyCellsList.Count);
+        int enemyCount = _rng.Next(_minEnemies, _maxEnemies + 1);
+        enemyCount = Mathf.Min(enemyCount, _emptyCellsList.Count);
 
         for (int i = 0; i < enemyCount; ++i)
         {
-            int randomIndex = m_Rng.Next(0, m_EmptyCellsList.Count);
-            Vector2Int coord = m_EmptyCellsList[randomIndex];
+            int randomIndex = _rng.Next(0, _emptyCellsList.Count);
+            Vector2Int coord = _emptyCellsList[randomIndex];
 
-            m_EmptyCellsList.RemoveAt(randomIndex);
+            _emptyCellsList.RemoveAt(randomIndex);
 
-            Enemy newEnemy = Instantiate(EnemyPrefab);
+            Enemy newEnemy = Instantiate(_enemyPrefab);
             AddObject(newEnemy, coord);
         }
     }
 
-    void AddObject(CellObject obj, Vector2Int coord)
+    private void AddObject(CellObject obj, Vector2Int coord)
     {
-        CellData data = m_BoardData[coord.x, coord.y];
+        CellData data = _boardData[coord.x, coord.y];
         obj.transform.position = CellToWorld(coord);
         data.ContainedObject = obj;
         obj.Init(coord);
-    }
-
-    public Vector3 CellToWorld(Vector2Int cellIndex)
-    {
-        return m_Grid.GetCellCenterWorld((Vector3Int)cellIndex);
-    }
-
-    public CellData GetCellData(Vector2Int cellIndex)
-    {
-        if (cellIndex.x < 0 || cellIndex.x >= Width ||
-            cellIndex.y < 0 || cellIndex.y >= Height)
-            return null;
-
-        return m_BoardData[cellIndex.x, cellIndex.y];
-    }
-
-    public void SetCellTile(Vector2Int cellIndex, Tile tile)
-    {
-        m_Tilemap.SetTile(new Vector3Int(cellIndex.x, cellIndex.y, 0), tile);
-    }
-
-    public Tile GetCellTile(Vector2Int cellIndex)
-    {
-        return m_Tilemap.GetTile<Tile>(new Vector3Int(cellIndex.x, cellIndex.y, 0));
     }
 }

@@ -1,26 +1,29 @@
+// Copyright (c) 2003-2026 Autism Group. All Rights Reserved.
+
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using UnityEngine.Serialization;
 
 public class ExitCellObject : CellObject
 {
-    public Tile EndTile;
+    [FormerlySerializedAs("EndTile")]
+    [SerializeField] private Tile _endTile;
 
-    private bool m_IsOpen = false;
+    private bool _isOpen;
 
     public override bool IsAttackable => false;
 
     public override void Init(Vector2Int coord)
     {
         base.Init(coord);
-        GameManager.Instance.BoardManager.SetCellTile(coord, EndTile);
-        m_IsOpen = false;
+        GameManager.Instance.BoardManager.SetCellTile(coord, _endTile);
+        _isOpen = false;
     }
 
     public override bool PlayerWantsToEnter()
     {
-        if (!m_IsOpen)
+        if (!_isOpen)
         {
-            Debug.Log("Сначала убей всех врагов!");
             return false;
         }
 
@@ -29,13 +32,14 @@ public class ExitCellObject : CellObject
 
     public override void PlayerEntered()
     {
-        if (m_IsOpen)
+        if (_isOpen)
+        {
             GameManager.Instance.NewLevel();
+        }
     }
 
     public void Open()
     {
-        m_IsOpen = true;
-        Debug.Log("Выход открыт!");
+        _isOpen = true;
     }
 }

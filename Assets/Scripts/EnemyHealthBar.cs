@@ -1,48 +1,64 @@
+// Copyright (c) 2003-2026 Autism Group. All Rights Reserved.
+
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Serialization;
 
 public class EnemyHealthBar : MonoBehaviour
 {
-    public Image FillImage;
-    public float HeightOffset = 0.8f;
+    [FormerlySerializedAs("FillImage")]
+    [SerializeField] private Image _fillImage;
 
-    private Transform m_Target;
-    private Camera m_Camera;
+    [FormerlySerializedAs("HeightOffset")]
+    [SerializeField] private float _heightOffset = 0.8f;
+
+    private Transform _target;
+    private Camera _camera;
 
     public void Setup(Transform target, Camera camera)
     {
-        m_Target = target;
-        m_Camera = camera;
+        _target = target;
+        _camera = camera;
     }
 
     public void SetHealth(int current, int max)
     {
-        if (FillImage == null)
+        if (_fillImage == null)
+        {
             return;
+        }
 
         float ratio = max > 0 ? (float)current / max : 0f;
-        FillImage.fillAmount = Mathf.Clamp01(ratio);
+        _fillImage.fillAmount = Mathf.Clamp01(ratio);
 
         if (ratio > 0.5f)
-            FillImage.color = Color.green;
+        {
+            _fillImage.color = Color.green;
+        }
         else if (ratio > 0.25f)
-            FillImage.color = Color.yellow;
+        {
+            _fillImage.color = Color.yellow;
+        }
         else
-            FillImage.color = Color.red;
+        {
+            _fillImage.color = Color.red;
+        }
     }
 
     private void LateUpdate()
     {
-        if (m_Target == null)
+        if (_target == null)
         {
             Destroy(gameObject);
             return;
         }
 
-        transform.position = m_Target.position + new Vector3(0, HeightOffset, 0);
+        transform.position = _target.position + new Vector3(0, _heightOffset, 0);
         transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);
 
-        if (m_Camera != null)
-            transform.rotation = m_Camera.transform.rotation;
+        if (_camera != null)
+        {
+            transform.rotation = _camera.transform.rotation;
+        }
     }
 }

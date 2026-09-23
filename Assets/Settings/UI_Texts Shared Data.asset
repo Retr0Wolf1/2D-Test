@@ -1,0 +1,100 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b11a58205ec3474ca216360e9fa74a8, type: 3}
+  m_Name: UI_Texts Shared Data
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.SharedTableData
+  m_TableCollectionName: UI_Texts
+  m_TableCollectionNameGuidString: 13e30a44af64f604198b7a9b1b1b7e0c
+  m_Entries:
+  - m_Id: 680176730112
+    m_Key: start_button
+    m_Metadata:
+      m_Items: []
+  - m_Id: 680185118720
+    m_Key: continue_button
+    m_Metadata:
+      m_Items: []
+  - m_Id: 680185118721
+    m_Key: settings_button
+    m_Metadata:
+      m_Items: []
+  - m_Id: 680189313024
+    m_Key: quit_button
+    m_Metadata:
+      m_Items: []
+  - m_Id: 680189313025
+    m_Key: music_label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 680189313026
+    m_Key: sounds_label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 680189313027
+    m_Key: back_button
+    m_Metadata:
+      m_Items: []
+  - m_Id: 680189313028
+    m_Key: resume_button
+    m_Metadata:
+      m_Items: []
+  - m_Id: 680189313029
+    m_Key: mainmenu_button
+    m_Metadata:
+      m_Items: []
+  - m_Id: 680189313030
+    m_Key: restart_button
+    m_Metadata:
+      m_Items: []
+  - m_Id: 680189313031
+    m_Key: gameover_title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 680189313032
+    m_Key: paused_title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 680189313033
+    m_Key: best_label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 680189313034
+    m_Key: days_label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 680189313035
+    m_Key: food_label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 680189313036
+    m_Key: goexit_message
+    m_Metadata:
+      m_Items: []
+  - m_Id: 680189313037
+    m_Key: hint_message
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1196696879104
+    m_Key: language_label
+    m_Metadata:
+      m_Items: []
+  m_Metadata:
+    m_Items: []
+  m_KeyGenerator:
+    rid: 3491934011037581588
+  references:
+    version: 2
+    RefIds:
+    - rid: 3491934011037581588
+      type: {class: DistributedUIDGenerator, ns: UnityEngine.Localization.Tables, asm: Unity.Localization}
+      data:
+        m_CustomEpoch: 1790157601081

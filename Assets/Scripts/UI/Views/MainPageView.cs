@@ -1,0 +1,86 @@
+// Copyright (c) 2003-2026 Autism Group. All Rights Reserved.
+
+using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.Localization.Settings;
+using TMPro;
+
+public class MainPageView : ViewBase
+{
+    [SerializeField] private Button _startButton;
+    [SerializeField] private Button _continueButton;
+    [SerializeField] private Button _settingsButton;
+    [SerializeField] private Button _quitButton;
+    [SerializeField] private TextMeshProUGUI _bestScoreText;
+    [SerializeField] private TextMeshProUGUI _titleText;
+
+    protected override void OnShow()
+    {
+        _startButton.onClick.AddListener(OnStartClicked);
+        _continueButton.onClick.AddListener(OnContinueClicked);
+        _settingsButton.onClick.AddListener(OnSettingsClicked);
+        _quitButton.onClick.AddListener(OnQuitClicked);
+
+        _continueButton.gameObject.SetActive(SaveManager.HasSave);
+
+        SetButtonText(_startButton, "start_button");
+        SetButtonText(_continueButton, "continue_button");
+        SetButtonText(_settingsButton, "settings_button");
+        SetButtonText(_quitButton, "quit_button");
+
+        _bestScoreText.text = GetText("best_label") + ": " + SaveManager.BestLevel + " " + GetText("days_label");
+        _titleText.text = "Roguelike";
+    }
+
+    protected override void OnHide()
+    {
+        _startButton.onClick.RemoveAllListeners();
+        _continueButton.onClick.RemoveAllListeners();
+        _settingsButton.onClick.RemoveAllListeners();
+        _quitButton.onClick.RemoveAllListeners();
+    }
+
+    private void SetButtonText(Button button, string key)
+    {
+        if (button == null)
+        {
+            return;
+        }
+
+        TextMeshProUGUI text = button.GetComponentInChildren<TextMeshProUGUI>();
+
+        if (text != null)
+        {
+            text.text = GetText(key);
+        }
+    }
+
+    private string GetText(string key)
+    {
+        return LocalizationSettings.StringDatabase.GetLocalizedString("UI_Texts", key);
+    }
+
+    private void OnStartClicked()
+    {
+        GameManager.Instance.StartNewGame();
+    }
+
+    private void OnContinueClicked()
+    {
+        GameManager.Instance.ContinueGame();
+    }
+
+    private void OnSettingsClicked()
+    {
+        ViewManager.Instance.OpenPopup<SettingsPopupView>();
+    }
+
+    private void OnQuitClicked()
+    {
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
+    }
+}

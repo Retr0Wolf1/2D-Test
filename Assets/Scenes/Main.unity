@@ -1506,8 +1506,8 @@ MonoBehaviour:
   _enemyPrefab: {fileID: 8778451079010608225, guid: ea9fac45d06e0b1488a997b73c56590a, type: 3}
   _minFood: 5
   _maxFood: 8
-  _minEnemies: 2
-  _maxEnemies: 4
+  _minEnemies: 3
+  _maxEnemies: 5
   _seed: 0
 --- !u!1 &2101870415
 GameObject:

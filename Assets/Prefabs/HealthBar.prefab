@@ -103,7 +103,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 0
+  m_PresetInfoIsWorld: 1
 --- !u!114 &-6639492682908532287
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -116,8 +116,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de74ecc23b211364582b139313e3a333, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyHealthBar
-  FillImage: {fileID: 291926990096661976}
-  HeightOffset: 0.8
+  _fillImage: {fileID: 291926990096661976}
+  _heightOffset: 0.8
 --- !u!1 &3773345153490592868
 GameObject:
   m_ObjectHideFlags: 0

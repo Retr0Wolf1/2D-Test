@@ -1,10 +1,11 @@
 // Copyright (c) 2003-2026 Autism Group. All Rights Reserved.
 
 using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.Localization.Settings;
-using TMPro;
 using UnityEngine.InputSystem;
+using UnityEngine.Localization.Settings;
+using UnityEngine.UI;
+
+using TMPro;
 
 public class HudPageView : ViewBase
 {
@@ -33,37 +34,25 @@ public class HudPageView : ViewBase
         _pauseButton.onClick.AddListener(OnPauseClicked);
         _goToExitText.gameObject.SetActive(false);
         _hintText.gameObject.SetActive(false);
-
-        _goToExitText.text = GetText("goexit_message");
-    }
-
-    protected override void OnHide()
-    {
-        _pauseButton.onClick.RemoveAllListeners();
-        HideGoToExit();
-        HideHint();
     }
 
     private void Update()
     {
         if (_foodLabel != null && _isLowFood)
         {
-            float t = Mathf.PingPong(Time.unscaledTime * _blinkSpeed, 1f);
+            var t = Mathf.PingPong(Time.unscaledTime * _blinkSpeed, 1f);
             _foodLabel.color = Color.Lerp(_normalFoodColor, _lowFoodColor, t);
         }
 
         if (_goToExitText != null && _isGoToExitVisible)
         {
-            float t = Mathf.PingPong(Time.unscaledTime * _goToExitBlinkSpeed, 1f);
+            var t = Mathf.PingPong(Time.unscaledTime * _goToExitBlinkSpeed, 1f);
             _goToExitText.color = Color.Lerp(_goToExitColorA, _goToExitColorB, t);
         }
 
-        if (_hintVisible)
+        if (_hintVisible && Keyboard.current != null && Keyboard.current.anyKey.wasPressedThisFrame)
         {
-            if (Keyboard.current != null && Keyboard.current.anyKey.wasPressedThisFrame)
-            {
-                SkipHint();
-            }
+            SkipHint();
         }
     }
 
@@ -74,7 +63,7 @@ public class HudPageView : ViewBase
             return;
         }
 
-        _foodLabel.text = GetText("food_label") + " : " + amount;
+        _foodLabel.text = LocalizationSettings.StringDatabase.GetLocalizedString("UI_Texts", "food_label") + " : " + amount;
 
         if (amount <= _lowFoodThreshold)
         {
@@ -89,7 +78,7 @@ public class HudPageView : ViewBase
 
     public void ShowGoToExit()
     {
-        _goToExitText.text = GetText("goexit_message");
+        _goToExitText.text = LocalizationSettings.StringDatabase.GetLocalizedString("UI_Texts", "goexit_message");
         _isGoToExitVisible = true;
         _goToExitText.gameObject.SetActive(true);
 
@@ -107,8 +96,27 @@ public class HudPageView : ViewBase
         _hintCoroutine = StartCoroutine(TypeHint());
     }
 
+    public void SkipHint()
+    {
+        if (!_hintVisible)
+        {
+            return;
+        }
+
+        if (_hintTyping)
+        {
+            _hintTyping = false;
+        }
+        else
+        {
+            HideHint();
+        }
+    }
+
     private System.Collections.IEnumerator TypeHint()
     {
+        var full = LocalizationSettings.StringDatabase.GetLocalizedString("UI_Texts", "hint_message");
+
         _hintText.text = "";
         _hintText.gameObject.SetActive(true);
         _hintText.raycastTarget = false;
@@ -116,9 +124,7 @@ public class HudPageView : ViewBase
         _hintVisible = true;
         _hintTyping = true;
 
-        string full = GetText("hint_message");
-
-        for (int i = 0; i <= full.Length; i++)
+        for (var i = 0; i <= full.Length; i++)
         {
             if (!_hintTyping)
             {
@@ -135,23 +141,6 @@ public class HudPageView : ViewBase
         yield return new WaitForSecondsRealtime(_hintDuration);
 
         HideHint();
-    }
-
-    public void SkipHint()
-    {
-        if (!_hintVisible)
-        {
-            return;
-        }
-
-        if (_hintTyping)
-        {
-            _hintTyping = false;
-        }
-        else
-        {
-            HideHint();
-        }
     }
 
     private void HideHint()
@@ -174,9 +163,11 @@ public class HudPageView : ViewBase
         _goToExitText.gameObject.SetActive(false);
     }
 
-    private string GetText(string key)
+    protected override void OnHide()
     {
-        return LocalizationSettings.StringDatabase.GetLocalizedString("UI_Texts", key);
+        _pauseButton.onClick.RemoveAllListeners();
+        HideGoToExit();
+        HideHint();
     }
 
     private void OnPauseClicked()

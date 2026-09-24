@@ -1,8 +1,9 @@
 // Copyright (c) 2003-2026 Autism Group. All Rights Reserved.
 
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.Localization.Settings;
+using UnityEngine.UI;
+
 using TMPro;
 
 public class MainPageView : ViewBase
@@ -12,7 +13,6 @@ public class MainPageView : ViewBase
     [SerializeField] private Button _settingsButton;
     [SerializeField] private Button _quitButton;
     [SerializeField] private TextMeshProUGUI _bestScoreText;
-    [SerializeField] private TextMeshProUGUI _titleText;
 
     protected override void OnShow()
     {
@@ -23,13 +23,7 @@ public class MainPageView : ViewBase
 
         _continueButton.gameObject.SetActive(SaveManager.HasSave);
 
-        SetButtonText(_startButton, "start_button");
-        SetButtonText(_continueButton, "continue_button");
-        SetButtonText(_settingsButton, "settings_button");
-        SetButtonText(_quitButton, "quit_button");
-
         _bestScoreText.text = GetText("best_label") + ": " + SaveManager.BestLevel + " " + GetText("days_label");
-        _titleText.text = "Roguelike";
     }
 
     protected override void OnHide()
@@ -38,21 +32,6 @@ public class MainPageView : ViewBase
         _continueButton.onClick.RemoveAllListeners();
         _settingsButton.onClick.RemoveAllListeners();
         _quitButton.onClick.RemoveAllListeners();
-    }
-
-    private void SetButtonText(Button button, string key)
-    {
-        if (button == null)
-        {
-            return;
-        }
-
-        TextMeshProUGUI text = button.GetComponentInChildren<TextMeshProUGUI>();
-
-        if (text != null)
-        {
-            text.text = GetText(key);
-        }
     }
 
     private string GetText(string key)

@@ -1,8 +1,8 @@
 // Copyright (c) 2003-2026 Autism Group. All Rights Reserved.
 
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.Localization.Settings;
 using UnityEngine.UI;
 
 using TMPro;
@@ -10,7 +10,7 @@ using TMPro;
 public class HudPageView : ViewBase
 {
     [SerializeField] private Button _pauseButton;
-    [SerializeField] private TextMeshProUGUI _foodLabel;
+    [SerializeField] private TextMeshProUGUI _foodValue;
     [SerializeField] private TextMeshProUGUI _goToExitText;
     [SerializeField] private TextMeshProUGUI _hintText;
     [SerializeField] private Color _normalFoodColor = Color.white;
@@ -19,7 +19,6 @@ public class HudPageView : ViewBase
     [SerializeField] private float _blinkSpeed = 2f;
     [SerializeField] private Color _goToExitColorA = Color.white;
     [SerializeField] private Color _goToExitColorB = Color.yellow;
-    [SerializeField] private float _goToExitBlinkSpeed = 2f;
     [SerializeField] private float _hintCharDelay = 0.03f;
     [SerializeField] private float _hintDuration = 5f;
 
@@ -31,23 +30,28 @@ public class HudPageView : ViewBase
 
     protected override void OnShow()
     {
-        _pauseButton.onClick.AddListener(OnPauseClicked);
-        _goToExitText.gameObject.SetActive(false);
-        _hintText.gameObject.SetActive(false);
+        if (_pauseButton != null)
+        {
+            _pauseButton.onClick.AddListener(OnPauseClicked);
+        }
+
+        if (_goToExitText != null)
+        {
+            _goToExitText.gameObject.SetActive(false);
+        }
+
+        if (_hintText != null)
+        {
+            _hintText.gameObject.SetActive(false);
+        }
     }
 
     private void Update()
     {
-        if (_foodLabel != null && _isLowFood)
+        if (_foodValue != null && _isLowFood)
         {
             var t = Mathf.PingPong(Time.unscaledTime * _blinkSpeed, 1f);
-            _foodLabel.color = Color.Lerp(_normalFoodColor, _lowFoodColor, t);
-        }
-
-        if (_goToExitText != null && _isGoToExitVisible)
-        {
-            var t = Mathf.PingPong(Time.unscaledTime * _goToExitBlinkSpeed, 1f);
-            _goToExitText.color = Color.Lerp(_goToExitColorA, _goToExitColorB, t);
+            _foodValue.color = Color.Lerp(_normalFoodColor, _lowFoodColor, t);
         }
 
         if (_hintVisible && Keyboard.current != null && Keyboard.current.anyKey.wasPressedThisFrame)
@@ -58,12 +62,12 @@ public class HudPageView : ViewBase
 
     public void UpdateFood(int amount)
     {
-        if (_foodLabel == null)
+        if (_foodValue == null)
         {
             return;
         }
 
-        _foodLabel.text = LocalizationSettings.StringDatabase.GetLocalizedString("UI_Texts", "food_label") + " : " + amount;
+        _foodValue.text = amount.ToString();
 
         if (amount <= _lowFoodThreshold)
         {
@@ -72,15 +76,25 @@ public class HudPageView : ViewBase
         else
         {
             _isLowFood = false;
-            _foodLabel.color = _normalFoodColor;
+            _foodValue.color = _normalFoodColor;
         }
     }
 
     public void ShowGoToExit()
     {
-        _goToExitText.text = LocalizationSettings.StringDatabase.GetLocalizedString("UI_Texts", "goexit_message");
+        if (_goToExitText == null)
+        {
+            return;
+        }
+
         _isGoToExitVisible = true;
         _goToExitText.gameObject.SetActive(true);
+
+        _goToExitText.color = _goToExitColorA;
+
+        _goToExitText.DOColor(_goToExitColorB, 0.5f)
+            .SetLoops(-1, LoopType.Yoyo)
+            .SetUpdate(true);
 
         CancelInvoke(nameof(HideGoToExit));
         Invoke(nameof(HideGoToExit), 3f);
@@ -88,12 +102,41 @@ public class HudPageView : ViewBase
 
     public void ShowHint()
     {
+        if (_hintText == null)
+        {
+            return;
+        }
+
         if (_hintCoroutine != null)
         {
             StopCoroutine(_hintCoroutine);
         }
 
-        _hintCoroutine = StartCoroutine(TypeHint());
+        // Сначала активируем — LocalizeStringEvent запишет текст
+        _hintText.gameObject.SetActive(true);
+
+        var hintText = _hintText.text;
+
+        if (string.IsNullOrEmpty(hintText))
+        {
+            Debug.LogWarning("HintText пустой!");
+            return;
+        }
+
+        // Обнуляем alpha и текст в этом же кадре
+        var c = _hintText.color;
+        c.a = 0f;
+        _hintText.color = c;
+
+        _hintText.text = "";
+        _hintText.raycastTarget = false;
+
+        // Принудительно перерисовываем меш — чтобы текст исчез немедленно
+        _hintText.ForceMeshUpdate();
+
+        // Плавное появление + печать
+        _hintText.DOFade(1f, 0.3f)
+            .OnComplete(() => _hintCoroutine = StartCoroutine(TypeHint(hintText)));
     }
 
     public void SkipHint()
@@ -113,19 +156,25 @@ public class HudPageView : ViewBase
         }
     }
 
-    private System.Collections.IEnumerator TypeHint()
+    private System.Collections.IEnumerator TypeHint(string full)
     {
-        var full = LocalizationSettings.StringDatabase.GetLocalizedString("UI_Texts", "hint_message");
+        if (_hintText == null)
+        {
+            yield break;
+        }
 
         _hintText.text = "";
-        _hintText.gameObject.SetActive(true);
-        _hintText.raycastTarget = false;
 
         _hintVisible = true;
         _hintTyping = true;
 
         for (var i = 0; i <= full.Length; i++)
         {
+            if (_hintText == null)
+            {
+                yield break;
+            }
+
             if (!_hintTyping)
             {
                 _hintText.text = full;
@@ -145,6 +194,11 @@ public class HudPageView : ViewBase
 
     private void HideHint()
     {
+        if (_hintText == null)
+        {
+            return;
+        }
+
         _hintVisible = false;
         _hintTyping = false;
 
@@ -154,24 +208,45 @@ public class HudPageView : ViewBase
             _hintCoroutine = null;
         }
 
-        _hintText.gameObject.SetActive(false);
+        _hintText.DOFade(0f, 0.3f)
+            .OnComplete(() =>
+            {
+                if (_hintText != null)
+                {
+                    _hintText.gameObject.SetActive(false);
+                }
+            });
     }
 
     private void HideGoToExit()
     {
+        if (_goToExitText == null)
+        {
+            return;
+        }
+
         _isGoToExitVisible = false;
+
+        _goToExitText.DOKill();
         _goToExitText.gameObject.SetActive(false);
     }
 
     protected override void OnHide()
     {
-        _pauseButton.onClick.RemoveAllListeners();
+        if (_pauseButton != null)
+        {
+            _pauseButton.onClick.RemoveAllListeners();
+        }
+
         HideGoToExit();
         HideHint();
     }
 
     private void OnPauseClicked()
     {
-        ViewManager.Instance.OpenPopup<PausePopupView>();
+        if (ViewManager.Instance != null)
+        {
+            ViewManager.Instance.OpenPopup<PausePopupView>();
+        }
     }
 }

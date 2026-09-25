@@ -1,5 +1,6 @@
 // Copyright (c) 2003-2026 Autism Group. All Rights Reserved.
 
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
@@ -62,6 +63,7 @@ public class PlayerController : MonoBehaviour
         _cellPosition = cell;
         _isMoving = false;
 
+        transform.DOKill();
         transform.position = _board.CellToWorld(_cellPosition);
 
         if (_animator != null)
@@ -82,6 +84,12 @@ public class PlayerController : MonoBehaviour
         {
             _animator.SetBool(MovingHash, true);
         }
+
+        var duration = 1f / _moveSpeed;
+
+        transform.DOMove(_moveTarget, duration)
+            .SetEase(Ease.Linear)
+            .OnComplete(OnMoveComplete);
     }
 
     public void PlayAttack()
@@ -95,6 +103,25 @@ public class PlayerController : MonoBehaviour
         {
             AudioManager.Instance.SFXSource.PlayOneShot(_attackSound, 2f);
         }
+    }
+
+    private void OnMoveComplete()
+    {
+        _isMoving = false;
+
+        if (_animator != null)
+        {
+            _animator.SetBool(MovingHash, false);
+        }
+
+        var cellData = _board.GetCellData(_cellPosition);
+
+        if (cellData != null && cellData.ContainedObject != null)
+        {
+            cellData.ContainedObject.PlayerEntered();
+        }
+
+        GameManager.Instance.TurnManager.Tick();
     }
 
     private void Update()
@@ -116,27 +143,6 @@ public class PlayerController : MonoBehaviour
 
         if (_isMoving)
         {
-            transform.position = Vector3.MoveTowards(transform.position, _moveTarget, _moveSpeed * Time.deltaTime);
-
-            if (transform.position == _moveTarget)
-            {
-                _isMoving = false;
-
-                if (_animator != null)
-                {
-                    _animator.SetBool(MovingHash, false);
-                }
-
-                var cellData = _board.GetCellData(_cellPosition);
-
-                if (cellData != null && cellData.ContainedObject != null)
-                {
-                    cellData.ContainedObject.PlayerEntered();
-                }
-
-                GameManager.Instance.TurnManager.Tick();
-            }
-
             return;
         }
 

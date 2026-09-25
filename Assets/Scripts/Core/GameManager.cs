@@ -117,22 +117,29 @@ public class GameManager : MonoBehaviour
 
     public void ContinueGame()
     {
-        if (!SaveManager.HasSave)
+        if (!SaveManager.HasSave())
+        {
+            return;
+        }
+
+        var data = SaveManager.LoadGame();
+
+        if (data == null)
         {
             return;
         }
 
         _isGameOver = false;
-        _currentLevel = SaveManager.LoadLevel();
-        _foodAmount = SaveManager.LoadFood();
-        _boardManager.Seed = SaveManager.LoadSeed();
+        _currentLevel = data.Level;
+        _foodAmount = data.Food;
+        _boardManager.Seed = data.Seed;
 
         _boardManager.Clean();
         _boardManager.Init();
 
         _playerController.gameObject.SetActive(true);
         _playerController.Init();
-        _playerController.Spawn(_boardManager, SaveManager.LoadPlayerPos());
+        _playerController.Spawn(_boardManager, new Vector2Int(data.PlayerX, data.PlayerY));
 
         ViewManager.Instance.OpenPage<HudPageView>();
 
@@ -177,11 +184,16 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        SaveManager.SaveGame(
-            _boardManager.Seed,
-            _foodAmount,
-            _currentLevel,
-            _playerController.Cell
-        );
+        var data = new SaveData
+        {
+            Seed = _boardManager.Seed,
+            Food = _foodAmount,
+            Level = _currentLevel,
+            PlayerX = _playerController.Cell.x,
+            PlayerY = _playerController.Cell.y,
+            BestLevel = SaveManager.GetBestLevel(),
+        };
+
+        SaveManager.SaveGame(data);
     }
 }

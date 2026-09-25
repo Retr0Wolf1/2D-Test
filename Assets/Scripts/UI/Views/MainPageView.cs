@@ -21,9 +21,9 @@ public class MainPageView : ViewBase
         _settingsButton.onClick.AddListener(OnSettingsClicked);
         _quitButton.onClick.AddListener(OnQuitClicked);
 
-        _continueButton.gameObject.SetActive(SaveManager.HasSave);
+        _continueButton.gameObject.SetActive(SaveManager.HasSave());
 
-        _bestScoreText.text = GetText("best_label") + ": " + SaveManager.BestLevel + " " + GetText("days_label");
+        _bestScoreText.text = GetText("best_label") + ": " + SaveManager.GetBestLevel() + " " + GetText("days_label");
     }
 
     protected override void OnHide()

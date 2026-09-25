@@ -14,7 +14,7 @@ public class GameOverPopupView : ViewBase
 
     protected override void OnShow()
     {
-        _bestScoreText.text = GetText("best_label") + ": " + SaveManager.BestLevel + " " + GetText("days_label");
+        _bestScoreText.text = GetText("best_label") + ": " + SaveManager.GetBestLevel() + " " + GetText("days_label");
 
         _restartButton.onClick.AddListener(OnRestartClicked);
         _mainMenuButton.onClick.AddListener(OnMainMenuClicked);

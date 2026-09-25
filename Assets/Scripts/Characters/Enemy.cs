@@ -1,5 +1,6 @@
 // Copyright (c) 2003-2026 Autism Group. All Rights Reserved.
 
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -59,13 +60,6 @@ public class Enemy : CellObject
     {
         if (_isMoving)
         {
-            transform.position = Vector3.MoveTowards(transform.position, _moveTarget, _moveSpeed * Time.deltaTime);
-
-            if (transform.position == _moveTarget)
-            {
-                _isMoving = false;
-            }
-
             return;
         }
 
@@ -119,6 +113,7 @@ public class Enemy : CellObject
                 GameManager.Instance.BoardManager.OnAllEnemiesDead();
             }
 
+            transform.DOKill();
             Destroy(gameObject);
         }
 
@@ -153,6 +148,12 @@ public class Enemy : CellObject
         _isMoving = true;
 
         PlayFootstep();
+
+        var duration = 1f / _moveSpeed;
+
+        transform.DOMove(_moveTarget, duration)
+            .SetEase(Ease.Linear)
+            .OnComplete(() => _isMoving = false);
 
         return true;
     }

@@ -83,7 +83,8 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 680189313037
-    m_Localized: Use arrows to move. Kill enemies. Find the exit.
+    m_Localized: Use arrows to move. Space - attack. Esc - pause Kill enemies. Find
+      the exit.
     m_Metadata:
       m_Items: []
   - m_Id: 1196696879104

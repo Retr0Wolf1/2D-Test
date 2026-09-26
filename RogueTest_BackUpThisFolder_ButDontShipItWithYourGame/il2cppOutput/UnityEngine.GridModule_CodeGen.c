@@ -1,0 +1,87 @@
+﻿#include "pch-c.h"
+
+
+#include "codegen/il2cpp-codegen-metadata.h"
+
+
+
+
+
+extern void EmbeddedAttribute__ctor_mB7CB7C52C930E48B8E02D3DD1B56B33DD237AD70 (void);
+extern void RefSafetyRulesAttribute__ctor_m9995FDD7F67B5D671BBD100F259D1459DEB6BBA1 (void);
+extern void Grid_GetCellCenterLocal_m62E6CFAE046C145B8340904FAE45D043B927CAB8 (void);
+extern void Grid_GetCellCenterWorld_m9972542B8C9076B7FC979A70A439DE0A3AC65F3D (void);
+extern void Grid_get_cellSize_m5512593532CABA9CFC058123B923AFA483D6003E (void);
+extern void Grid_get_inverseCellStride_m760F2B241D6FC215D2ED882A4B7CE94F1286C0ED (void);
+extern void Grid__ctor_mF8857FF5BF55232C1C252B55DA6E34F9C15CD75C (void);
+extern void Grid_get_cellSize_Injected_mAA6A2B2F7C979279AEC73D5D82A20851E3F11A9B (void);
+extern void Grid_get_inverseCellStride_Injected_mD0891CBF4A644D2C1BCE082D268A9C1C18F69FC6 (void);
+extern void GridLayout_CellToLocalInterpolated_mE1FC35F36111BD0881573C6F51C37239BF3BD621 (void);
+extern void GridLayout_LocalToWorld_m4714A4DAF4FF9545E9CCB3A8ACB5731A498D9CA6 (void);
+extern void GridLayout_GetLayoutCellCenter_mAAAFBE12686D56E4A18A2ECBC4860A80C109D014 (void);
+extern void GridLayout_DoNothing_mA280987BF98D257023D46C2C01902FC82EE6A00A (void);
+extern void GridLayout__ctor_m9266D2F9A58091E4214E9E5B69C0E5350F344828 (void);
+extern void GridLayout_CellToLocalInterpolated_Injected_mB16B7B8062F5DF8F78BF270B9D5E7B6BA8CEB3EE (void);
+extern void GridLayout_LocalToWorld_Injected_mBF494266A8A287F7076B07952A03AFD0BAC008C0 (void);
+extern void GridLayout_GetLayoutCellCenter_Injected_m5CD88AB8DBF2BFDF5E87FBD6E62105B3E5D4FE12 (void);
+static Il2CppMethodPointer s_methodPointers[17] = 
+{
+	EmbeddedAttribute__ctor_mB7CB7C52C930E48B8E02D3DD1B56B33DD237AD70,
+	RefSafetyRulesAttribute__ctor_m9995FDD7F67B5D671BBD100F259D1459DEB6BBA1,
+	Grid_GetCellCenterLocal_m62E6CFAE046C145B8340904FAE45D043B927CAB8,
+	Grid_GetCellCenterWorld_m9972542B8C9076B7FC979A70A439DE0A3AC65F3D,
+	Grid_get_cellSize_m5512593532CABA9CFC058123B923AFA483D6003E,
+	Grid_get_inverseCellStride_m760F2B241D6FC215D2ED882A4B7CE94F1286C0ED,
+	Grid__ctor_mF8857FF5BF55232C1C252B55DA6E34F9C15CD75C,
+	Grid_get_cellSize_Injected_mAA6A2B2F7C979279AEC73D5D82A20851E3F11A9B,
+	Grid_get_inverseCellStride_Injected_mD0891CBF4A644D2C1BCE082D268A9C1C18F69FC6,
+	GridLayout_CellToLocalInterpolated_mE1FC35F36111BD0881573C6F51C37239BF3BD621,
+	GridLayout_LocalToWorld_m4714A4DAF4FF9545E9CCB3A8ACB5731A498D9CA6,
+	GridLayout_GetLayoutCellCenter_mAAAFBE12686D56E4A18A2ECBC4860A80C109D014,
+	GridLayout_DoNothing_mA280987BF98D257023D46C2C01902FC82EE6A00A,
+	GridLayout__ctor_m9266D2F9A58091E4214E9E5B69C0E5350F344828,
+	GridLayout_CellToLocalInterpolated_Injected_mB16B7B8062F5DF8F78BF270B9D5E7B6BA8CEB3EE,
+	GridLayout_LocalToWorld_Injected_mBF494266A8A287F7076B07952A03AFD0BAC008C0,
+	GridLayout_GetLayoutCellCenter_Injected_m5CD88AB8DBF2BFDF5E87FBD6E62105B3E5D4FE12,
+};
+static const int32_t s_InvokerIndices[17] = 
+{
+	13243,
+	10088,
+	9373,
+	9373,
+	13232,
+	13232,
+	13243,
+	18324,
+	18324,
+	9372,
+	9372,
+	13232,
+	13243,
+	13243,
+	17040,
+	17040,
+	18324,
+};
+IL2CPP_EXTERN_C const Il2CppCodeGenModule g_UnityEngine_GridModule_CodeGenModule;
+const Il2CppCodeGenModule g_UnityEngine_GridModule_CodeGenModule = 
+{
+	"UnityEngine.GridModule.dll",
+	17,
+	s_methodPointers,
+	0,
+	NULL,
+	s_InvokerIndices,
+	0,
+	NULL,
+	0,
+	NULL,
+	0,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+};

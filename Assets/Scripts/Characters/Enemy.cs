@@ -113,7 +113,7 @@ public class Enemy : CellObject
                 GameManager.Instance.BoardManager.OnAllEnemiesDead();
             }
 
-            transform.DOKill();
+            transform.DOComplete();
             Destroy(gameObject);
         }
 
@@ -153,6 +153,7 @@ public class Enemy : CellObject
 
         transform.DOMove(_moveTarget, duration)
             .SetEase(Ease.Linear)
+            .SetLink(gameObject)
             .OnComplete(() => _isMoving = false);
 
         return true;

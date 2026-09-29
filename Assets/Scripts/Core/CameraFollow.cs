@@ -11,6 +11,10 @@ public class CameraFollow : MonoBehaviour
     [FormerlySerializedAs("SmoothSpeed")]
     [SerializeField] private float _smoothSpeed = 5f;
 
+    [Tooltip("Половина видимой высоты в клетках. Меньше — камера ближе и клетки крупнее.")]
+    [Min(1f)]
+    [SerializeField] private float _orthographicSize = 2.5f;
+
     private float _minX;
     private float _maxX;
     private float _minY;
@@ -20,6 +24,8 @@ public class CameraFollow : MonoBehaviour
     public void Setup(BoardManager board)
     {
         var cam = GetComponent<Camera>();
+        cam.orthographicSize = _orthographicSize;
+
         var halfHeight = cam.orthographicSize;
         var halfWidth = halfHeight * cam.aspect;
 

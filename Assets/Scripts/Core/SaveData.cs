@@ -11,4 +11,5 @@ public class SaveData
     public int PlayerX;
     public int PlayerY;
     public int BestLevel;
+    public int RevivesUsed;
 }

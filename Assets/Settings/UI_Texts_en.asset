@@ -91,6 +91,22 @@ MonoBehaviour:
     m_Localized: Language
     m_Metadata:
       m_Items: []
+  - m_Id: 1196696879200
+    m_Localized: Revive
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1196696879201
+    m_Localized: Revive token
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1196696879202
+    m_Localized: Buy 3 revives
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1196696879203
+    m_Localized: Remove ads
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

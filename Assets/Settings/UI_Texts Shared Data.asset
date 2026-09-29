@@ -87,6 +87,22 @@ MonoBehaviour:
     m_Key: language_label
     m_Metadata:
       m_Items: []
+  - m_Id: 1196696879200
+    m_Key: revive_label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1196696879201
+    m_Key: revive_token_label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1196696879202
+    m_Key: revive_buy_label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1196696879203
+    m_Key: no_ads_label
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

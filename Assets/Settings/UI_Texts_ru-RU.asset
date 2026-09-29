@@ -94,6 +94,22 @@ MonoBehaviour:
     m_Localized: "\u042F\u0437\u044B\u043A"
     m_Metadata:
       m_Items: []
+  - m_Id: 1196696879200
+    m_Localized: "Воскреснуть"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1196696879201
+    m_Localized: "Жетон воскрешения"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1196696879202
+    m_Localized: "Купить 3 воскрешения"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1196696879203
+    m_Localized: "Убрать рекламу"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

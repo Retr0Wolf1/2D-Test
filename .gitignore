@@ -112,3 +112,16 @@ InitTestScene*.unity*
 
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
+
+# Unity build artifacts
+*_BurstDebugInformation_DoNotShip/
+*_BackUpThisFolder_ButDontShipItWithYourGame/
+
+# Auto-generated UI Toolkit schema
+/UIElementsSchema/
+
+# Local tool settings
+/ProjectSettings/Packages/
+/.claude/
+/.mcp.json
+/.vscode/

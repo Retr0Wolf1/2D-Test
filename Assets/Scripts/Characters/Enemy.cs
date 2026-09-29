@@ -107,6 +107,7 @@ public class Enemy : CellObject
             }
 
             AliveCount--;
+            AnalyticsManager.EnemyKilled(GameManager.Instance.CurrentLevel);
 
             if (AliveCount <= 0)
             {

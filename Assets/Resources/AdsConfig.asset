@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b1fe3c0e84a96a44489a988f4f1bb1fa, type: 3}
+  m_Name: AdsConfig
+  m_EditorClassIdentifier: 
+  _android:
+    GameId: 800384176
+    RewardedPlacementId: BP_Rewarded_Android
+    InterstitialPlacementId: BP_Interstitial_Android
+    BannerPlacementId: BP_Banner_Android
+  _ios:
+    GameId: 
+    RewardedPlacementId: Rewarded_iOS
+    InterstitialPlacementId: Interstitial_iOS
+    BannerPlacementId: Banner_iOS
+  _testMode: 1
+  _interstitialEveryDeaths: 2
+  _fullscreenCooldown: 90

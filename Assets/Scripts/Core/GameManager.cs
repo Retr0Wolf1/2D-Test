@@ -13,13 +13,20 @@ public class GameManager : MonoBehaviour
     [FormerlySerializedAs("PlayerController")]
     [SerializeField] private PlayerController _playerController;
 
+    [Header("Revive")]
+    [SerializeField] private int _maxRevivesPerRun = 3;
+    [SerializeField] private int _reviveFood = 20;
+
     private int _foodAmount = 100;
     private int _currentLevel = 1;
     private bool _isGameOver;
+    private int _revivesUsed;
 
     public BoardManager BoardManager => _boardManager;
     public PlayerController PlayerController => _playerController;
     public TurnManager TurnManager { get; private set; }
+    public int CurrentLevel => _currentLevel;
+    public int RevivesLeft => Mathf.Max(0, _maxRevivesPerRun - _revivesUsed);
 
     private void Awake()
     {
@@ -59,13 +66,49 @@ public class GameManager : MonoBehaviour
             SaveManager.TrySaveBestLevel(_currentLevel);
             SaveManager.ClearSave();
 
+            AnalyticsManager.RunEnded(_currentLevel, SaveManager.GetBestLevel());
+
             _playerController.GameOver();
             ViewManager.Instance.OpenPopup<GameOverPopupView>();
         }
     }
 
+    // Лимит за катку есть только у воскрешений за рекламу, платные не ограничены.
+    public void Revive(bool isFromAd)
+    {
+        if (!_isGameOver || (isFromAd && RevivesLeft <= 0))
+        {
+            return;
+        }
+
+        if (isFromAd)
+        {
+            _revivesUsed++;
+        }
+
+        _isGameOver = false;
+        _foodAmount = _reviveFood;
+
+        _playerController.Init();
+
+        ViewManager.Instance.ClosePopup<GameOverPopupView>();
+
+        var hud = ViewManager.Instance.CurrentPage as HudPageView;
+
+        if (hud != null)
+        {
+            hud.UpdateFood(_foodAmount);
+        }
+
+        SaveGame();
+
+        AnalyticsManager.PlayerRevived(_currentLevel, isFromAd);
+    }
+
     public void NewLevel()
     {
+        AnalyticsManager.LevelCompleted(_currentLevel, _foodAmount);
+
         _currentLevel++;
         SaveManager.TrySaveBestLevel(_currentLevel);
 
@@ -92,6 +135,7 @@ public class GameManager : MonoBehaviour
         _isGameOver = false;
         _currentLevel = 1;
         _foodAmount = 20;
+        _revivesUsed = 0;
 
         _boardManager.Seed = (int)System.DateTime.Now.Ticks;
 
@@ -113,6 +157,8 @@ public class GameManager : MonoBehaviour
         }
 
         SaveGame();
+
+        AnalyticsManager.RunStarted(false, _currentLevel);
     }
 
     public void ContinueGame()
@@ -132,6 +178,7 @@ public class GameManager : MonoBehaviour
         _isGameOver = false;
         _currentLevel = data.Level;
         _foodAmount = data.Food;
+        _revivesUsed = data.RevivesUsed;
         _boardManager.Seed = data.Seed;
 
         _boardManager.Clean();
@@ -149,6 +196,8 @@ public class GameManager : MonoBehaviour
         {
             hud.UpdateFood(_foodAmount);
         }
+
+        AnalyticsManager.RunStarted(true, _currentLevel);
     }
 
     public void ReturnToMainMenu()
@@ -192,6 +241,7 @@ public class GameManager : MonoBehaviour
             PlayerX = _playerController.Cell.x,
             PlayerY = _playerController.Cell.y,
             BestLevel = SaveManager.GetBestLevel(),
+            RevivesUsed = _revivesUsed,
         };
 
         SaveManager.SaveGame(data);
